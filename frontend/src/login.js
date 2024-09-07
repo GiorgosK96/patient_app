@@ -1,15 +1,14 @@
 import React, { useState } from 'react';
 
-function Register() {
+function Login() {
   const [formData, setFormData] = useState({
-    username: '',
     email: '',
     password: '',
-    role: 'patient' // default role to 'patient'
   });
 
   const [message, setMessage] = useState('');
 
+  // Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -18,11 +17,12 @@ function Register() {
     });
   };
 
+  // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
 
     // Send a POST request to your Flask backend
-    fetch('/register', {
+    fetch('/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -35,6 +35,11 @@ function Register() {
           setMessage(data.error); // Display error message from the backend
         } else {
           setMessage(data.message); // Display success message
+          
+          // Optionally store the JWT token
+          if (data.token) {
+            localStorage.setItem('token', data.token);
+          }
         }
       })
       .catch((error) => {
@@ -45,18 +50,8 @@ function Register() {
 
   return (
     <div>
-      <h2>Register User</h2>
+      <h2>Login</h2>
       <form onSubmit={handleSubmit}>
-        <div>
-          <label>Username:</label>
-          <input
-            type="text"
-            name="username"
-            value={formData.username}
-            onChange={handleChange}
-            required
-          />
-        </div>
         <div>
           <label>Email:</label>
           <input
@@ -70,25 +65,18 @@ function Register() {
         <div>
           <label>Password:</label>
           <input
-            type="password"
+            type="password"  // Use password type to hide the input
             name="password"
             value={formData.password}
             onChange={handleChange}
             required
           />
         </div>
-        <div>
-          <label>Role:</label>
-          <select name="role" value={formData.role} onChange={handleChange}>
-            <option value="patient">Patient</option>
-            <option value="doctor">Doctor</option>
-          </select>
-        </div>
-        <button type="submit">Register</button>
+        <button type="submit">Login</button>
       </form>
       {message && <p>{message}</p>}
     </div>
   );
 }
 
-export default Register;
+export default Login;

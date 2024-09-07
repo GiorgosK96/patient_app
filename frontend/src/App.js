@@ -2,17 +2,21 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import LandingPage from './LandingPage';
 import Register from './register';
+import Login from './login';
 
 
 function App() {
   return (
     <Router>
       <Routes>
-        {/* Set the landing page as the starting point */}
+        {}
         <Route path="/" element={<LandingPage />} />
       
-        {/* Registration page */}
+        {}
         <Route path="/register" element={<Register />} />
+
+        {}
+        <Route path="/login" element={<Login />} />
         
       </Routes>
     </Router>

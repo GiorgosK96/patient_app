@@ -2,21 +2,28 @@ from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from flask_bcrypt import Bcrypt
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required
 
 app = Flask(__name__)
 
+# Configuration for database and JWT
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///appointments.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['JWT_SECRET_KEY'] = 'your_jwt_secret_key'  # Change this to a strong secret key
+
+# Initialize extensions
 db = SQLAlchemy(app)
 CORS(app)
 bcrypt = Bcrypt(app)
+jwt = JWTManager(app)
 
+# User model
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(128), nullable=False)
-    role = db.Column(db.String(10), nullable=False)
+    role = db.Column(db.String(10), nullable=False, default='patient')  # Default role as 'patient'
 
     def set_password(self, password):
         self.password = bcrypt.generate_password_hash(password).decode('utf-8')
@@ -48,12 +55,41 @@ def register():
     new_user = User(username=username, email=email, role=role)
     new_user.set_password(password)
 
+    # Save to the database
     db.session.add(new_user)
     db.session.commit()
 
     return jsonify({'message': 'User registered successfully'}), 201
 
+# Login route
+@app.route("/login", methods=['POST'])
+def login():
+    data = request.get_json()
+
+    # Check if the user exists
+    user = User.query.filter_by(email=data['email']).first()
+
+    if user and user.check_password(data['password']):
+        # If user exists and password is correct, generate a JWT token
+        token = create_access_token(identity=user.id)
+        return jsonify({
+            'message': 'Login successful',
+            'token': token
+        }), 200
+    else:
+        # If the email or password is incorrect
+        return jsonify({
+            'error': 'Invalid credentials'
+        }), 401
+
+# Protected route example
+@app.route("/protected", methods=['GET'])
+@jwt_required()  # This route requires a valid JWT token
+def protected():
+    return jsonify({'message': 'You have accessed a protected route'}), 200
+
+
 if __name__ == '__main__':
     with app.app_context():
-        db.create_all()
+        db.create_all()  # Create the database and tables if they don't exist
     app.run(debug=True)
