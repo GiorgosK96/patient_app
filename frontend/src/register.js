@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
+import { useNavigate } from "react-router-dom";
 
 function Register() {
   const [formData, setFormData] = useState({
     username: '',
     email: '',
     password: '',
-    role: 'patient' // default role to 'patient'
+    role: 'patient'
   });
 
   const [message, setMessage] = useState('');
+  const [errors, setErrors] = useState({});
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -18,8 +21,36 @@ function Register() {
     });
   };
 
+  const validate = () => {
+    const newErrors = {};
+    
+    if (!formData.username) {
+      newErrors.username = 'Username is required';
+    }
+
+    if (!formData.email) {
+      newErrors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Email format is invalid';
+    }
+
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters';
+    }
+
+    return newErrors;
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    const newErrors = validate();
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
 
     // Send a POST request to your Flask backend
     fetch('/register', {
@@ -35,6 +66,7 @@ function Register() {
           setMessage(data.error); // Display error message from the backend
         } else {
           setMessage(data.message); // Display success message
+          navigate("/login"); 
         }
       })
       .catch((error) => {
@@ -43,10 +75,14 @@ function Register() {
       });
   };
 
+  const handleLoginRedirect = () => {
+    navigate("/login"); // Redirect to the /login page
+  };
+
   return (
     <div>
       <h2>Register User</h2>
-      <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} noValidate>
         <div>
           <label>Username:</label>
           <input
@@ -56,6 +92,7 @@ function Register() {
             onChange={handleChange}
             required
           />
+        {errors.username && <p style={{ color: 'red' }}>{errors.username}</p>}
         </div>
         <div>
           <label>Email:</label>
@@ -66,6 +103,7 @@ function Register() {
             onChange={handleChange}
             required
           />
+          {errors.email && <p style={{ color: 'red' }}>{errors.email}</p>}
         </div>
         <div>
           <label>Password:</label>
@@ -76,6 +114,7 @@ function Register() {
             onChange={handleChange}
             required
           />
+         {errors.password && <p style={{ color: 'red' }}>{errors.password}</p>}
         </div>
         <div>
           <label>Role:</label>
@@ -85,9 +124,13 @@ function Register() {
           </select>
         </div>
         <button type="submit">Register</button>
+        <div>
+        <button onClick={handleLoginRedirect}>Go to Login</button>
+      </div>
       </form>
       {message && <p>{message}</p>}
     </div>
+
   );
 }
 

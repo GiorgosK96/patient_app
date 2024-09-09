@@ -2,7 +2,7 @@ from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from flask_bcrypt import Bcrypt
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 
 app = Flask(__name__)
 
@@ -74,7 +74,8 @@ def login():
         token = create_access_token(identity=user.id)
         return jsonify({
             'message': 'Login successful',
-            'token': token
+            'token': token,
+            'username': user.username  # Add the username here
         }), 200
     else:
         # If the email or password is incorrect
@@ -82,11 +83,14 @@ def login():
             'error': 'Invalid credentials'
         }), 401
 
-# Protected route example
-@app.route("/protected", methods=['GET'])
-@jwt_required()  # This route requires a valid JWT token
-def protected():
-    return jsonify({'message': 'You have accessed a protected route'}), 200
+
+
+@app.route("/manageAppointment", methods=['GET'])
+@jwt_required()  # Protect this route
+def manage_appointment():
+    current_user_id = get_jwt_identity()  # Get the identity of the logged-in user from the token
+    # Fetch or process user-specific appointments
+    return jsonify({'message': 'Here are your appointments', 'user_id': current_user_id}), 200
 
 
 if __name__ == '__main__':
