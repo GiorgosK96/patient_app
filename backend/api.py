@@ -103,8 +103,20 @@ def login():
 @jwt_required()  # Protect this route
 def manage_appointment():
     current_user_id = get_jwt_identity()  # Get the identity of the logged-in user from the token
-    # Fetch or process user-specific appointments
-    return jsonify({'message': 'Here are your appointments', 'user_id': current_user_id}), 200
+    # Fetch all appointments for the logged-in user
+    appointments = Appointment.query.filter_by(user_id=current_user_id).all()
+
+    # Convert appointments to a list of dictionaries for JSON response
+    appointments_list = [{
+        'date': appointment.date,
+        'time_from': appointment.time_from,
+        'time_to': appointment.time_to,
+        'specialization': appointment.specialization,
+        'comments': appointment.comments
+    } for appointment in appointments]
+    
+    return jsonify({'appointments': appointments_list}), 200
+
 
 
 @app.route("/AddAppointment", methods=['POST'])
