@@ -34,6 +34,20 @@ class User(db.Model):
     def __repr__(self):
         return f"<User('{self.username}', '{self.email}', '{self.role}')>"
 
+
+class Appointment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    date = db.Column(db.String(50), nullable=False)
+    time_from = db.Column(db.String(10), nullable=False)
+    time_to = db.Column(db.String(10), nullable=False)
+    specialization = db.Column(db.String(50), nullable=False)
+    comments = db.Column(db.Text, nullable=True)
+
+    def __repr__(self):
+        return f"<Appointment for {self.specialization} on {self.date}>"
+
+
 # Register route
 @app.route("/register", methods=['POST'])
 def register():
@@ -61,6 +75,7 @@ def register():
 
     return jsonify({'message': 'User registered successfully'}), 201
 
+
 # Login route
 @app.route("/login", methods=['POST'])
 def login():
@@ -84,13 +99,36 @@ def login():
         }), 401
 
 
-
 @app.route("/manageAppointment", methods=['GET'])
 @jwt_required()  # Protect this route
 def manage_appointment():
     current_user_id = get_jwt_identity()  # Get the identity of the logged-in user from the token
     # Fetch or process user-specific appointments
     return jsonify({'message': 'Here are your appointments', 'user_id': current_user_id}), 200
+
+
+@app.route("/AddAppointment", methods=['POST'])
+@jwt_required()
+def add_appointment():
+    data = request.get_json()
+    user_id = get_jwt_identity()  # Get the ID of the logged-in user
+
+    if not data.get('date') or not data.get('time_from') or not data.get('time_to') or not data.get('specialization'):
+        return jsonify({'error': 'Missing required fields'}), 400
+    
+    new_appointment = Appointment(
+        user_id=user_id,
+        date=data['date'],
+        time_from=data['time_from'],
+        time_to=data['time_to'],
+        specialization=data['specialization'],
+        comments=data.get('comments', '')
+    )
+
+    db.session.add(new_appointment)
+    db.session.commit()
+
+    return jsonify({'message': 'Appointment created successfully'}), 201
 
 
 if __name__ == '__main__':
