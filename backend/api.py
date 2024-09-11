@@ -103,6 +103,12 @@ def login():
 @jwt_required()  # Protect this route
 def manage_appointment():
     current_user_id = get_jwt_identity()  # Get the identity of the logged-in user from the token
+
+
+@app.route("/ShowAppointment", methods=['GET'])
+@jwt_required()  # Protect this route
+def show_appointment():
+    current_user_id = get_jwt_identity()  # Get the identity of the logged-in user from the token
     # Fetch all appointments for the logged-in user
     appointments = Appointment.query.filter_by(user_id=current_user_id).all()
 

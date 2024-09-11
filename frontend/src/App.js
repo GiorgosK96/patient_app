@@ -5,6 +5,8 @@ import Register from './register';
 import Login from './login';
 import ManageAppointment from './manageAppointment';
 import AddAppointment from './AddAppointment';
+import ShowAppointment from './ShowAppointment';  // Import your ShowAppointment component
+
 
 function App() {
   return (
@@ -27,6 +29,9 @@ function App() {
 
         {/* Add Appointment */}
         <Route path="/AddAppointment" element={<AddAppointment />} />
+
+        {/* Show Appointment */}
+        <Route path="/ShowAppointment" element={<ShowAppointment />} />
       </Routes>
     </Router>
   );
