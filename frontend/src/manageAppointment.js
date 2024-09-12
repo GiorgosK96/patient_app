@@ -4,11 +4,11 @@ function ManageAppointment() {
   const navigate = useNavigate();
 
   const handleCreateAppointment = () => {
-    navigate('/AddAppointment');  // Redirect to add appointment page
+    navigate('/AddAppointment');
   };
 
   const handleShowAppointment = () => {
-    navigate('/ShowAppointment');  // Redirect to show appointment page
+    navigate('/ShowAppointment');
   };
 
   const handleLogout = () => {

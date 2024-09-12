@@ -1,23 +1,41 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 
-export const AddAppointment = () => {
+export const UpdateAppointment = () => {
   const [date, setDate] = useState('');
   const [timeFrom, setTimeFrom] = useState('');
   const [timeTo, setTimeTo] = useState('');
   const [specialization, setSpecialization] = useState('');
   const [comment, setComment] = useState('');
   const [message, setMessage] = useState('');
-  const [isAccepted, setIsAccepted] = useState(null);
-  const navigate = useNavigate(); 
+  const { appointmentId } = useParams();
 
   const specializations = ['Cardiologist', 'Dermatologist', 'Neurologist', 'Orthopedist'];
 
+  useEffect(() => {
+    fetch(`/ShowAppointment/${appointmentId}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    })
+      .then(response => response.json())
+      .then(data => {
+        setDate(data.date);
+        setTimeFrom(data.time_from);
+        setTimeTo(data.time_to);
+        setSpecialization(data.specialization);
+        setComment(data.comments);
+      })
+      .catch((error) => {
+        console.error('Failed to fetch appointment', error);
+        setMessage('Failed to load appointment details.');
+      });
+  }, [appointmentId]);
+
   const handleSubmit = () => {
-    // Validate fields before submitting
     if (!date || !timeFrom || !timeTo || !specialization) {
       setMessage('All fields are required');
-      setIsAccepted(false);
       return;
     }
 
@@ -29,46 +47,30 @@ export const AddAppointment = () => {
       comments: comment,
     };
 
-    // Send the request to the backend
-    fetch('/AddAppointment', {
-      method: 'POST',
+    fetch(`/UpdateAppointment/${appointmentId}`, {
+      method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       },
       body: JSON.stringify(data),
     })
-      .then((response) => response.json())  // Parse JSON response
-      .then((data) => {
-        if (data.error) {
-          setMessage(`Error: ${data.error}`); // Display specific error message from backend
-          setIsAccepted(false);
+      .then((response) => {
+        if (response.ok) {
+          setMessage('Appointment updated successfully');
         } else {
-          setMessage(data.message);  // Display success message
-          setIsAccepted(true);
-          setDate('');
-          setTimeFrom('');
-          setTimeTo('');
-          setSpecialization('');
-          setComment('');
+          setMessage('Failed to update appointment');
         }
       })
       .catch((error) => {
+        console.error('Error updating appointment:', error);
         setMessage('An error occurred');
-        setIsAccepted(false);
-        console.error(error);
       });
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('username');
-    navigate('/login');  // Redirect to login page
-  };
-
   return (
-    <div className="add-appointment">
-      <h2>Create Appointment</h2>
+    <div className="update-appointment">
+      <h2>Update Appointment</h2>
       <div className="form-group">
         <label>Date</label>
         <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
@@ -96,17 +98,10 @@ export const AddAppointment = () => {
         <label>Comments</label>
         <textarea value={comment} onChange={(e) => setComment(e.target.value)} />
       </div>
-      <button onClick={handleSubmit}>Add Appointment</button>
-      
-      {message && (
-        <p style={{ color: isAccepted ? 'green' : 'red' }}>
-          {message}
-        </p>
-      )}
-      
-      <button onClick={handleLogout}>Logout</button>
+      <button onClick={handleSubmit}>Update Appointment</button>
+      {message && <p>{message}</p>}
     </div>
   );
 };
 
-export default AddAppointment;
+export default UpdateAppointment;

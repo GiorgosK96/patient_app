@@ -35,7 +35,7 @@ class User(db.Model):
     def __repr__(self):
         return f"<User('{self.username}', '{self.email}', '{self.role}')>"
 
-
+# Appointment model
 class Appointment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -48,7 +48,6 @@ class Appointment(db.Model):
     def __repr__(self):
         return f"<Appointment for {self.specialization} on {self.date}>"
 
-
 # Register route
 @app.route("/register", methods=['POST'])
 def register():
@@ -58,74 +57,77 @@ def register():
     password = data.get('password')
     role = data.get('role', 'patient')  # Default role to 'patient'
 
-    # Check if email is already registered
     if User.query.filter_by(email=email).first():
         return jsonify({'error': 'Email already registered'}), 400
 
-    # Check if username is already taken
     if User.query.filter_by(username=username).first():
         return jsonify({'error': 'Username already taken'}), 400
 
-    # Create a new user
     new_user = User(username=username, email=email, role=role)
     new_user.set_password(password)
 
-    # Save to the database
     db.session.add(new_user)
     db.session.commit()
 
     return jsonify({'message': 'User registered successfully'}), 201
-
 
 # Login route
 @app.route("/login", methods=['POST'])
 def login():
     data = request.get_json()
 
-    # Check if the user exists
     user = User.query.filter_by(email=data['email']).first()
 
     if user and user.check_password(data['password']):
-        # If user exists and password is correct, generate a JWT token
         token = create_access_token(identity=user.id)
         return jsonify({
             'message': 'Login successful',
             'token': token,
-            'username': user.username  # Add the username here
+            'username': user.username
         }), 200
     else:
-        # If the email or password is incorrect
         return jsonify({
             'error': 'Invalid credentials'
         }), 401
 
+# Show a specific appointment by ID
+@app.route("/ShowAppointment/<int:appointment_id>", methods=['GET'])
+@jwt_required()
+def get_appointment(appointment_id):
+    current_user_id = get_jwt_identity()
+    appointment = Appointment.query.filter_by(id=appointment_id, user_id=current_user_id).first()
 
-@app.route("/manageAppointment", methods=['GET'])
-@jwt_required()  # Protect this route
-def manage_appointment():
-    current_user_id = get_jwt_identity()  # Get the identity of the logged-in user from the token
+    if not appointment:
+        return jsonify({'error': 'Appointment not found'}), 404
 
+    return jsonify({
+        'id': appointment.id,
+        'date': appointment.date,
+        'time_from': appointment.time_from,
+        'time_to': appointment.time_to,
+        'specialization': appointment.specialization,
+        'comments': appointment.comments
+    }), 200
 
+# Show all appointments
 @app.route("/ShowAppointment", methods=['GET'])
-@jwt_required()  # Protect this route
+@jwt_required()
 def show_appointment():
-    current_user_id = get_jwt_identity()  # Get the identity of the logged-in user from the token
-    # Fetch all appointments for the logged-in user
+    current_user_id = get_jwt_identity()
     appointments = Appointment.query.filter_by(user_id=current_user_id).all()
 
-    # Convert appointments to a list of dictionaries for JSON response
     appointments_list = [{
+        'id': appointment.id,
         'date': appointment.date,
         'time_from': appointment.time_from,
         'time_to': appointment.time_to,
         'specialization': appointment.specialization,
         'comments': appointment.comments
     } for appointment in appointments]
-    
+
     return jsonify({'appointments': appointments_list}), 200
 
-
-
+# Add a new appointment
 @app.route("/AddAppointment", methods=['POST'])
 @jwt_required()
 def add_appointment():
@@ -148,7 +150,6 @@ def add_appointment():
     
     if selected_time_to <= selected_time_from:
         return jsonify({'error': 'End time must be after the start time'}), 400
-      
 
     new_appointment = Appointment(
         user_id=user_id,
@@ -164,8 +165,53 @@ def add_appointment():
 
     return jsonify({'message': 'Appointment created successfully'}), 201
 
+@app.route("/UpdateAppointment/<int:appointment_id>", methods=['PUT'])
+@jwt_required()
+def update_appointment(appointment_id):
+    data = request.get_json()
+    user_id = get_jwt_identity()  # Get the logged-in user's ID
+
+    # Fetch the appointment to be updated
+    appointment = Appointment.query.filter_by(id=appointment_id, user_id=user_id).first()
+
+    if not appointment:
+        return jsonify({'error': 'Appointment not found'}), 404
+
+    # Validate and update date and time if provided
+    date_str = data.get('date', appointment.date)
+    time_from_str = data.get('time_from', appointment.time_from)
+    time_to_str = data.get('time_to', appointment.time_to)
+
+    try:
+        # Check for the correct format of date and time
+        selected_time_from = datetime.strptime(f"{date_str} {time_from_str}", "%Y-%m-%d %H:%M")
+        selected_time_to = datetime.strptime(f"{date_str} {time_to_str}", "%Y-%m-%d %H:%M")
+        current_time = datetime.now()
+    except ValueError:
+        return jsonify({'error': 'Invalid date or time format'}), 400
+
+    if selected_time_from < current_time:
+        return jsonify({'error': 'Cannot create or update an appointment in the past'}), 400
+
+    if selected_time_to <= selected_time_from:
+        return jsonify({'error': 'End time must be after the start time'}), 400
+
+    # Update the fields
+    appointment.date = date_str
+    appointment.time_from = time_from_str
+    appointment.time_to = time_to_str
+    appointment.specialization = data.get('specialization', appointment.specialization)
+    appointment.comments = data.get('comments', appointment.comments)
+
+    try:
+        db.session.commit()
+        return jsonify({'message': 'Appointment updated successfully'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': f'Failed to update appointment: {str(e)}'}), 500
+
 
 if __name__ == '__main__':
     with app.app_context():
-        db.create_all() 
+        db.create_all()
     app.run(debug=True)
