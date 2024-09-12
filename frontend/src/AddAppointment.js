@@ -8,7 +8,7 @@ export const AddAppointment = () => {
   const [specialization, setSpecialization] = useState('');
   const [comment, setComment] = useState('');
   const [message, setMessage] = useState('');
-  const [isAccepted, setIsAccepted] = useState(false);
+  const [isAccepted, setIsAccepted] = useState(null); // Changed to null to differentiate between success and failure
   const navigate = useNavigate();  // Initialize useNavigate
 
   const specializations = ['Cardiologist', 'Dermatologist', 'Neurologist', 'Orthopedist'];
@@ -17,6 +17,7 @@ export const AddAppointment = () => {
     // Validate fields before submitting
     if (!date || !timeFrom || !timeTo || !specialization) {
       setMessage('All fields are required');
+      setIsAccepted(false);
       return;
     }
 
@@ -37,21 +38,24 @@ export const AddAppointment = () => {
       },
       body: JSON.stringify(data),
     })
-      .then((response) => {
-        if (response.ok) {
-          setMessage('Appointment created successfully');
+      .then((response) => response.json())  // Parse JSON response
+      .then((data) => {
+        if (data.error) {
+          setMessage(`Error: ${data.error}`); // Display specific error message from backend
+          setIsAccepted(false);
+        } else {
+          setMessage(data.message);  // Display success message
           setIsAccepted(true);
           setDate('');
           setTimeFrom('');
           setTimeTo('');
           setSpecialization('');
           setComment('');
-        } else {
-          setMessage('Failed to create appointment');
         }
       })
       .catch((error) => {
         setMessage('An error occurred');
+        setIsAccepted(false);
         console.error(error);
       });
   };
@@ -93,7 +97,13 @@ export const AddAppointment = () => {
         <textarea value={comment} onChange={(e) => setComment(e.target.value)} />
       </div>
       <button onClick={handleSubmit}>Add Appointment</button>
-      {message && <p>{isAccepted ? 'Success' : 'Error'}: {message}</p>}
+      
+      {message && (
+        <p style={{ color: isAccepted ? 'green' : 'red' }}>
+          {message}
+        </p>
+      )}
+      
       <button onClick={handleLogout}>Logout</button>
     </div>
   );

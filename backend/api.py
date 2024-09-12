@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -129,11 +130,26 @@ def show_appointment():
 @jwt_required()
 def add_appointment():
     data = request.get_json()
-    user_id = get_jwt_identity()  # Get the ID of the logged-in user
+    user_id = get_jwt_identity()
 
-    if not data.get('date') or not data.get('time_from') or not data.get('time_to') or not data.get('specialization'):
-        return jsonify({'error': 'Missing required fields'}), 400
+    date_str = data.get('date')
+    time_from_str = data.get('time_from')
+    time_to_str = data.get('time_to')
+
+    try:
+        selected_time_from = datetime.strptime(f"{date_str} {time_from_str}", "%Y-%m-%d %H:%M")
+        selected_time_to = datetime.strptime(f"{date_str} {time_to_str}", "%Y-%m-%d %H:%M")
+        current_time = datetime.now()
+    except ValueError:
+        return jsonify({'error': 'Invalid date or time format'}), 400
     
+    if selected_time_from < current_time:
+        return jsonify({'error': 'Cannot create an appointment in the past'}), 400
+    
+    if selected_time_to <= selected_time_from:
+        return jsonify({'error': 'End time must be after the start time'}), 400
+      
+
     new_appointment = Appointment(
         user_id=user_id,
         date=data['date'],
@@ -151,5 +167,5 @@ def add_appointment():
 
 if __name__ == '__main__':
     with app.app_context():
-        db.create_all()  # Create the database and tables if they don't exist
+        db.create_all() 
     app.run(debug=True)
