@@ -38,13 +38,13 @@ export const AddAppointment = () => {
       },
       body: JSON.stringify(data),
     })
-      .then((response) => response.json())  // Parse JSON response
+      .then((response) => response.json())
       .then((data) => {
         if (data.error) {
-          setMessage(`Error: ${data.error}`); // Display specific error message from backend
+          setMessage(`Error: ${data.error}`);
           setIsAccepted(false);
         } else {
-          setMessage(data.message);  // Display success message
+          setMessage(data.message);
           setIsAccepted(true);
           setDate('');
           setTimeFrom('');

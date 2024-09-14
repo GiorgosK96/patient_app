@@ -33,6 +33,38 @@ function ShowAppointment() {
     navigate(`/UpdateAppointment/${appointmentId}`);
   };
 
+  const [isSuccess, setIsSuccess] = useState(null);  // Track if the operation was successful
+
+  const handleDeleteAppointment = (appointmentId) => {
+    fetch(`/ShowAppointment/${appointmentId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+      },
+    })
+      .then((response) => {
+        if (response.ok) {
+          response.json().then(data => {
+            setMessage(data.message);  // Use the message from the backend
+            setIsSuccess(true);        // Set success status
+            setAppointments(appointments.filter(appointment => appointment.id !== appointmentId));
+          });
+        } else {
+          response.json().then(data => {
+            setMessage(data.message);  // Use the message from the backend
+            setIsSuccess(false);       // Set error status
+          });
+        }
+      })
+      .catch((error) => {
+        console.error('Error deleting appointment:', error);
+        setMessage('An error occurred');
+        setIsSuccess(false);            // Set error status
+      });
+  };
+  
+  
+
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('username');
@@ -42,7 +74,11 @@ function ShowAppointment() {
   return (
     <div>
       <h2>Show Appointments</h2>
-      {message && <p>{message}</p>}
+      {message && (
+        <p style={{ color: isSuccess ? 'green' : 'red' }}>
+      {message}
+        </p>
+        )}
       <ul>
         {appointments.map((appointment) => (
           <li key={appointment.id}>
@@ -52,6 +88,7 @@ function ShowAppointment() {
             <p><strong>Specialization:</strong> {appointment.specialization}</p>
             <p><strong>Comments:</strong> {appointment.comments}</p>
             <button onClick={() => handleEditAppointment(appointment.id)}>Edit</button>
+            <button onClick={() => handleDeleteAppointment(appointment.id)}>Delete</button>
           </li>
         ))}
       </ul>

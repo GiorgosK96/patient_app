@@ -38,7 +38,7 @@ export const UpdateAppointment = () => {
       setMessage('All fields are required');
       return;
     }
-
+  
     const data = {
       date,
       time_from: timeFrom,
@@ -46,7 +46,7 @@ export const UpdateAppointment = () => {
       specialization,
       comments: comment,
     };
-
+  
     fetch(`/UpdateAppointment/${appointmentId}`, {
       method: 'PUT',
       headers: {
@@ -55,11 +55,12 @@ export const UpdateAppointment = () => {
       },
       body: JSON.stringify(data),
     })
-      .then((response) => {
-        if (response.ok) {
-          setMessage('Appointment updated successfully');
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.error) {
+          setMessage(`Error: ${data.error}`);
         } else {
-          setMessage('Failed to update appointment');
+          setMessage(data.message);
         }
       })
       .catch((error) => {
@@ -67,6 +68,7 @@ export const UpdateAppointment = () => {
         setMessage('An error occurred');
       });
   };
+  
 
   return (
     <div className="update-appointment">
@@ -99,9 +101,15 @@ export const UpdateAppointment = () => {
         <textarea value={comment} onChange={(e) => setComment(e.target.value)} />
       </div>
       <button onClick={handleSubmit}>Update Appointment</button>
-      {message && <p>{message}</p>}
+  
+      {message && (
+        <p style={{ color: message.includes('Error') ? 'red' : 'green' }}>
+          {message}
+        </p>
+      )}
     </div>
   );
+  
 };
 
 export default UpdateAppointment;

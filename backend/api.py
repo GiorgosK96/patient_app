@@ -191,7 +191,7 @@ def update_appointment(appointment_id):
         return jsonify({'error': 'Invalid date or time format'}), 400
 
     if selected_time_from < current_time:
-        return jsonify({'error': 'Cannot create or update an appointment in the past'}), 400
+        return jsonify({'error': 'Cannot update an appointment in the past'}), 400
 
     if selected_time_to <= selected_time_from:
         return jsonify({'error': 'End time must be after the start time'}), 400
@@ -209,6 +209,21 @@ def update_appointment(appointment_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': f'Failed to update appointment: {str(e)}'}), 500
+
+
+@app.route("/ShowAppointment/<int:appointment_id>", methods=['DELETE'])
+@jwt_required()
+def delete_appointments(appointment_id):
+    current_user_id = get_jwt_identity() 
+
+    appointment = Appointment.query.filter_by(id=appointment_id, user_id=current_user_id).first()
+    
+    if appointment:
+        db.session.delete(appointment)
+        db.session.commit()
+        return jsonify(message='Appointment deleted successfuly'), 202
+    else:
+        return jsonify(message='Appointment not found'), 404
 
 
 if __name__ == '__main__':
