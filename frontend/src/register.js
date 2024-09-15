@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
+import './register.css';
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -52,20 +53,19 @@ function Register() {
       return;
     }
 
-    // Send a POST request to your Flask backend
     fetch('/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(formData), // Send form data as JSON
+      body: JSON.stringify(formData), 
     })
       .then((response) => response.json())
       .then((data) => {
         if (data.error) {
-          setMessage(data.error); // Display error message from the backend
+          setMessage(data.error); 
         } else {
-          setMessage(data.message); // Display success message
+          setMessage(data.message); 
           navigate("/login"); 
         }
       })
@@ -76,14 +76,14 @@ function Register() {
   };
 
   const handleLoginRedirect = () => {
-    navigate("/login"); // Redirect to the /login page
+    navigate("/login");
   };
 
   return (
-    <div>
-      <h2>Register User</h2>
-        <form onSubmit={handleSubmit} noValidate>
-        <div>
+    <div className="register-container">
+      <h2 className="register-title">User Registration</h2>
+        <form onSubmit={handleSubmit} noValidate className="register-form">
+        <div className="form-group">
           <label>Username:</label>
           <input
             type="text"
@@ -92,9 +92,9 @@ function Register() {
             onChange={handleChange}
             required
           />
-        {errors.username && <p style={{ color: 'red' }}>{errors.username}</p>}
+        {errors.username && <p className="error-text">{errors.username}</p>}
         </div>
-        <div>
+        <div className="form-group">
           <label>Email:</label>
           <input
             type="email"
@@ -103,9 +103,9 @@ function Register() {
             onChange={handleChange}
             required
           />
-          {errors.email && <p style={{ color: 'red' }}>{errors.email}</p>}
+          {errors.email && <p className="error-text">{errors.email}</p>}
         </div>
-        <div>
+        <div className="form-group">
           <label>Password:</label>
           <input
             type="password"
@@ -114,23 +114,22 @@ function Register() {
             onChange={handleChange}
             required
           />
-         {errors.password && <p style={{ color: 'red' }}>{errors.password}</p>}
+         {errors.password && <p className="error-text">{errors.password}</p>}
         </div>
-        <div>
+        <div className="form-group">
           <label>Role:</label>
           <select name="role" value={formData.role} onChange={handleChange}>
             <option value="patient">Patient</option>
             <option value="doctor">Doctor</option>
           </select>
         </div>
-        <button type="submit">Register</button>
+        <button type="submit" className="register-button">Register</button>
         <div>
-        <button onClick={handleLoginRedirect}>Go to Login</button>
+        <button onClick={handleLoginRedirect} className="login-redirect-button">Go to Login</button>
       </div>
       </form>
-      {message && <p>{message}</p>}
+      {message && <p className="message-text">{message}</p>}
     </div>
-
   );
 }
 

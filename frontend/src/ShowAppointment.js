@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import './ShowAppointment.css';
 
 function ShowAppointment() {
   const [appointments, setAppointments] = useState([]);
@@ -72,27 +73,27 @@ function ShowAppointment() {
   };
 
   return (
-    <div>
-      <h2>Show Appointments</h2>
+    <div className="appointment-container">
+      <h2 className="appointment-title">Show Appointments</h2>
       {message && (
-        <p style={{ color: isSuccess ? 'green' : 'red' }}>
-      {message}
+        <p className={`message-text ${isSuccess ? 'success-text' : 'error-text'}`}>
+          {message}
         </p>
-        )}
-      <ul>
+      )}
+      <ul className="appointment-list">
         {appointments.map((appointment) => (
-          <li key={appointment.id}>
+          <li key={appointment.id} className="appointment-item">
             <p><strong>Date:</strong> {appointment.date}</p>
             <p><strong>From:</strong> {appointment.time_from}</p>
             <p><strong>To:</strong> {appointment.time_to}</p>
             <p><strong>Specialization:</strong> {appointment.specialization}</p>
             <p><strong>Comments:</strong> {appointment.comments}</p>
-            <button onClick={() => handleEditAppointment(appointment.id)}>Edit</button>
-            <button onClick={() => handleDeleteAppointment(appointment.id)}>Delete</button>
+            <button className="edit-button" onClick={() => handleEditAppointment(appointment.id)}>Edit</button>
+            <button className="delete-button" onClick={() => handleDeleteAppointment(appointment.id)}>Delete</button>
           </li>
         ))}
       </ul>
-      <button onClick={handleLogout}>Logout</button>
+      <button className="logout-button" onClick={handleLogout}>Logout</button>
     </div>
   );
 }

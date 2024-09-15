@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import './AddAppointment.css';
 
 export const AddAppointment = () => {
   const [date, setDate] = useState('');
@@ -14,7 +15,7 @@ export const AddAppointment = () => {
   const specializations = ['Cardiologist', 'Dermatologist', 'Neurologist', 'Orthopedist'];
 
   const handleSubmit = () => {
-    // Validate fields before submitting
+ 
     if (!date || !timeFrom || !timeTo || !specialization) {
       setMessage('All fields are required');
       setIsAccepted(false);
@@ -29,7 +30,6 @@ export const AddAppointment = () => {
       comments: comment,
     };
 
-    // Send the request to the backend
     fetch('/AddAppointment', {
       method: 'POST',
       headers: {
@@ -63,48 +63,50 @@ export const AddAppointment = () => {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('username');
-    navigate('/login');  // Redirect to login page
+    navigate('/login'); 
   };
 
   return (
-    <div className="add-appointment">
-      <h2>Create Appointment</h2>
-      <div className="form-group">
-        <label>Date</label>
-        <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-      </div>
-      <div className="form-group">
-        <label>From</label>
-        <input type="time" value={timeFrom} onChange={(e) => setTimeFrom(e.target.value)} />
-      </div>
-      <div className="form-group">
-        <label>To</label>
-        <input type="time" value={timeTo} onChange={(e) => setTimeTo(e.target.value)} />
-      </div>
-      <div className="form-group">
-        <label>Specialization</label>
-        <select value={specialization} onChange={(e) => setSpecialization(e.target.value)}>
-          <option value="">Select Specialization</option>
-          {specializations.map((spec, index) => (
-            <option key={index} value={spec}>
-              {spec}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div className="form-group">
-        <label>Comments</label>
-        <textarea value={comment} onChange={(e) => setComment(e.target.value)} />
-      </div>
-      <button onClick={handleSubmit}>Add Appointment</button>
-      
+    <div className="appointment-container">
+      <h2 className="appointment-title">Create Appointment</h2>
+      <form className="appointment-form">
+        <div className="form-group">
+          <label>Date</label>
+          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+        </div>
+        <div className="form-group">
+          <label>From</label>
+          <input type="time" value={timeFrom} onChange={(e) => setTimeFrom(e.target.value)} />
+        </div>
+        <div className="form-group">
+          <label>To</label>
+          <input type="time" value={timeTo} onChange={(e) => setTimeTo(e.target.value)} />
+        </div>
+        <div className="form-group">
+          <label>Specialization</label>
+          <select value={specialization} onChange={(e) => setSpecialization(e.target.value)}>
+            <option value="">Select Specialization</option>
+            {specializations.map((spec, index) => (
+              <option key={index} value={spec}>
+                {spec}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="form-group">
+          <label>Comments</label>
+          <textarea value={comment} onChange={(e) => setComment(e.target.value)} />
+        </div>
+        <button type="button" onClick={handleSubmit} className="appointment-button">Add Appointment</button>
+      </form>
+
       {message && (
-        <p style={{ color: isAccepted ? 'green' : 'red' }}>
+        <p className={`message-text ${isAccepted ? 'success-text' : 'error-text'}`}>
           {message}
         </p>
       )}
-      
-      <button onClick={handleLogout}>Logout</button>
+
+      <button onClick={handleLogout} className="logout-button">Logout</button>
     </div>
   );
 };

@@ -7,12 +7,11 @@ from datetime import datetime
 
 app = Flask(__name__)
 
-# Configuration for database and JWT
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///appointments.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = 'your_jwt_secret_key'  # Change this to a strong secret key
 
-# Initialize extensions
+
 db = SQLAlchemy(app)
 CORS(app)
 bcrypt = Bcrypt(app)

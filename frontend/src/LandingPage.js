@@ -1,17 +1,22 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import './LandingPage.css';
 
 function LandingPage() {
   return (
-    <div style={{ textAlign: 'center', marginTop: '50px' }}>
-      <h1>Welcome to the Patient Appointment App</h1>
-      <p>Please choose an option:</p>
-      <div style={{ margin: '20px' }}>
-        <Link to="/login">
-          <button style={{ marginRight: '10px' }}>Login</button>
-        </Link>
+    <div className="page-container">
+      <h1 className="title">Patient Appointment Application</h1>
+
+      <div className="auth-buttons">
+      <p className="register-text">If you are a new user you can register here!</p>
         <Link to="/register">
-          <button>Register</button>
+          <button className="register-button">Register</button>
+        </Link>
+
+        <p className="login-text">Already have an account?</p>
+
+        <Link to="/login">
+          <button className="login-button">Login</button>
         </Link>
       </div>
     </div>

@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import './manageAppointment.css';  
 
 function ManageAppointment() {
   const navigate = useNavigate();
@@ -18,11 +19,17 @@ function ManageAppointment() {
   };
 
   return (
-    <div>
-      <h2>Manage Appointments</h2>
-      <button onClick={handleCreateAppointment}>Add Appointment</button>
-      <button onClick={handleShowAppointment}>Show Appointment</button>
-      <button onClick={handleLogout}>Logout</button>
+    <div className="manage-container">
+      <h2 className="manage-title">Manage Appointments</h2>
+      <button className="manage-button add-appointment-button" onClick={handleCreateAppointment}>
+        Add Appointment
+      </button>
+      <button className="manage-button show-appointment-button" onClick={handleShowAppointment}>
+        Show Appointment
+      </button>
+      <button className="manage-button logout-button" onClick={handleLogout}>
+        Logout
+      </button>
     </div>
   );
 }

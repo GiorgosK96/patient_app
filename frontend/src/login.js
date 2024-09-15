@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
+import './login.css'; // Import the CSS
+
 
 function Login() {
   const [formData, setFormData] = useState({
@@ -45,24 +47,23 @@ function Login() {
       return;
     }
 
-    // Send a POST request to your Flask backend
+
     fetch('/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(formData), // Send form data as JSON
+      body: JSON.stringify(formData), 
     })
       .then((response) => response.json())
       .then((data) => {
         if (data.error) {
-          setMessage(data.error); // Display error message from the backend
+          setMessage(data.error);
         } else {
-          setMessage(data.message); // Display success message
-          // Store the JWT token and username in localStorage
+          setMessage(data.message); 
           if (data.token) {
             localStorage.setItem('token', data.token);
-            localStorage.setItem('username', data.username);  // Store the username
+            localStorage.setItem('username', data.username);  
           }
           navigate("/manageAppointment");
         }
@@ -74,10 +75,10 @@ function Login() {
   };
 
   return (
-    <div>
-      <h2>Login</h2>
-      <form onSubmit={handleSubmit} noValidate>
-        <div>
+    <div className="login-container">
+      <h2 className="login-title">User Login</h2>
+      <form onSubmit={handleSubmit} noValidate className="login-form">
+        <div className="form-group">
           <label>Email:</label>
           <input
             type="email"
@@ -86,9 +87,9 @@ function Login() {
             onChange={handleChange}
             required
           />
-          {errors.email && <p style={{ color: 'red' }}>{errors.email}</p>}
+          {errors.email && <p className="error-text">{errors.email}</p>}
         </div>
-        <div>
+        <div className="form-group">
           <label>Password:</label>
           <input
             type="password"
@@ -97,11 +98,11 @@ function Login() {
             onChange={handleChange}
             required
           />
-          {errors.password && <p style={{ color: 'red' }}>{errors.password}</p>}
+          {errors.password && <p className="error-text">{errors.password}</p>}
         </div>
-        <button type="submit">Login</button>
+        <button type="submit" className="login-button">Login</button>
       </form>
-      {message && <p>{message}</p>}
+      {message && <p className="message-text">{message}</p>}
     </div>
   );
 }
