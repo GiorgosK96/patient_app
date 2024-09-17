@@ -9,21 +9,21 @@ app = Flask(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///appointments.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['JWT_SECRET_KEY'] = 'your_jwt_secret_key'  # Change this to a strong secret key
-
+app.config['JWT_SECRET_KEY'] = 'your_jwt_secret_key'
 
 db = SQLAlchemy(app)
 CORS(app)
 bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
 
-# User model
-class User(db.Model):
+
+# Patient model
+class Patient(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    full_name = db.Column(db.String(120), nullable=False)
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(128), nullable=False)
-    role = db.Column(db.String(10), nullable=False, default='patient')  # Default role as 'patient'
 
     def set_password(self, password):
         self.password = bcrypt.generate_password_hash(password).decode('utf-8')
@@ -32,62 +32,130 @@ class User(db.Model):
         return bcrypt.check_password_hash(self.password, password)
 
     def __repr__(self):
-        return f"<User('{self.username}', '{self.email}', '{self.role}')>"
+        return f"<Patient('{self.full_name}', '{self.username}', '{self.email}')>"
 
-# Appointment model
+
+# Doctor model
+class Doctor(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    full_name = db.Column(db.String(120), nullable=False)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password = db.Column(db.String(128), nullable=False)
+    specialization = db.Column(db.String(80), nullable=False)
+
+    def set_password(self, password):
+        self.password = bcrypt.generate_password_hash(password).decode('utf-8')
+
+    def check_password(self, password):
+        return bcrypt.check_password_hash(self.password, password)
+
+    def __repr__(self):
+        return f"<Doctor('{self.full_name}', '{self.username}', '{self.specialization}')>"
+
+
 class Appointment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    patient_id = db.Column(db.Integer, db.ForeignKey('patient.id'), nullable=False)
+    doctor_id = db.Column(db.Integer, db.ForeignKey('doctor.id'), nullable=False)  # New field to store doctor ID
     date = db.Column(db.String(50), nullable=False)
     time_from = db.Column(db.String(10), nullable=False)
     time_to = db.Column(db.String(10), nullable=False)
-    specialization = db.Column(db.String(50), nullable=False)
     comments = db.Column(db.Text, nullable=True)
 
+    doctor = db.relationship('Doctor', backref='appointments')  # To easily access doctor details
+
     def __repr__(self):
-        return f"<Appointment for {self.specialization} on {self.date}>"
+        return f"<Appointment with Doctor {self.doctor.full_name} on {self.date}>"
+
 
 # Register route
 @app.route("/register", methods=['POST'])
 def register():
     data = request.get_json()
+    full_name = data.get('full_name')
     username = data.get('username')
     email = data.get('email')
     password = data.get('password')
-    role = data.get('role', 'patient')  # Default role to 'patient'
+    role = data.get('role')  # Either 'patient' or 'doctor'
+    specialization = data.get('specialization')
 
-    if User.query.filter_by(email=email).first():
-        return jsonify({'error': 'Email already registered'}), 400
+    if role == 'patient':
+        # Register as a patient
+        if Patient.query.filter_by(email=email).first() or Patient.query.filter_by(username=username).first():
+            return jsonify({'error': 'Email or Username already registered'}), 400
+        
+        new_patient = Patient(full_name=full_name, username=username, email=email)
+        new_patient.set_password(password)
 
-    if User.query.filter_by(username=username).first():
-        return jsonify({'error': 'Username already taken'}), 400
+        db.session.add(new_patient)
+        db.session.commit()
 
-    new_user = User(username=username, email=email, role=role)
-    new_user.set_password(password)
+        return jsonify({'message': 'Patient registered successfully'}), 201
 
-    db.session.add(new_user)
-    db.session.commit()
+    elif role == 'doctor':
+        # Register as a doctor
+        if Doctor.query.filter_by(email=email).first() or Doctor.query.filter_by(username=username).first():
+            return jsonify({'error': 'Email or Username already registered'}), 400
 
-    return jsonify({'message': 'User registered successfully'}), 201
+        if not specialization:
+            return jsonify({'error': 'Specialization is required for doctors'}), 400
+        
+        new_doctor = Doctor(full_name=full_name, username=username, email=email, specialization=specialization)
+        new_doctor.set_password(password)
+
+        db.session.add(new_doctor)
+        db.session.commit()
+
+        return jsonify({'message': 'Doctor registered successfully'}), 201
+
+    else:
+        return jsonify({'error': 'Invalid role'}), 400
+
 
 # Login route
 @app.route("/login", methods=['POST'])
 def login():
     data = request.get_json()
+    email = data.get('email')
+    password = data.get('password')
+    role = data.get('role')
 
-    user = User.query.filter_by(email=data['email']).first()
+    if role == 'patient':
+        # Login as a patient
+        patient = Patient.query.filter_by(email=email).first()
 
-    if user and user.check_password(data['password']):
-        token = create_access_token(identity=user.id)
-        return jsonify({
-            'message': 'Login successful',
-            'token': token,
-            'username': user.username
-        }), 200
+        if patient and patient.check_password(password):
+            token = create_access_token(identity=patient.id)
+            return jsonify({
+                'message': 'Login successful',
+                'token': token,
+                'username': patient.username,
+                'full_name': patient.full_name,
+                'role': 'patient'  # Return role
+            }), 200
+        else:
+            return jsonify({'error': 'Invalid credentials'}), 401
+
+    elif role == 'doctor':
+        # Login as a doctor
+        doctor = Doctor.query.filter_by(email=email).first()
+
+        if doctor and doctor.check_password(password):
+            token = create_access_token(identity=doctor.id)
+            return jsonify({
+                'message': 'Login successful',
+                'token': token,
+                'username': doctor.username,
+                'specialization': doctor.specialization,
+                'role': 'doctor'  # Return role
+            }), 200
+        else:
+            return jsonify({'error': 'Invalid credentials'}), 401
+
     else:
-        return jsonify({
-            'error': 'Invalid credentials'
-        }), 401
+        return jsonify({'error': 'Invalid role'}), 400
+
 
 # Show a specific appointment by ID
 @app.route("/ShowAppointment/<int:appointment_id>", methods=['GET'])
@@ -131,7 +199,13 @@ def show_appointment():
 @jwt_required()
 def add_appointment():
     data = request.get_json()
-    user_id = get_jwt_identity()
+    patient_id = get_jwt_identity()
+    doctor_id = data.get('doctor_id')
+
+    # Validate that doctor_id is provided and valid
+    doctor = Doctor.query.get(doctor_id)
+    if not doctor:
+        return jsonify({'error': 'Invalid or missing doctor selection'}), 400
 
     date_str = data.get('date')
     time_from_str = data.get('time_from')
@@ -143,19 +217,19 @@ def add_appointment():
         current_time = datetime.now()
     except ValueError:
         return jsonify({'error': 'Invalid date or time format'}), 400
-    
+
     if selected_time_from < current_time:
         return jsonify({'error': 'Cannot create an appointment in the past'}), 400
-    
+
     if selected_time_to <= selected_time_from:
         return jsonify({'error': 'End time must be after the start time'}), 400
 
     new_appointment = Appointment(
-        user_id=user_id,
+        patient_id=patient_id,
+        doctor_id=doctor_id,
         date=data['date'],
         time_from=data['time_from'],
         time_to=data['time_to'],
-        specialization=data['specialization'],
         comments=data.get('comments', '')
     )
 
@@ -224,6 +298,12 @@ def delete_appointments(appointment_id):
     else:
         return jsonify(message='Appointment not found'), 404
 
+# Show all doctors (to display in the appointment creation form for patients)
+@app.route("/doctors", methods=['GET'])
+def get_doctors():
+    doctors = Doctor.query.all()
+    doctors_list = [{'id': doctor.id, 'full_name': doctor.full_name, 'specialization': doctor.specialization} for doctor in doctors]
+    return jsonify({'doctors': doctors_list}), 200
 
 if __name__ == '__main__':
     with app.app_context():

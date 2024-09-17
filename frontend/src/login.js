@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
-import './login.css'; // Import the CSS
+import './login.css'; 
 
 function Login() {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
+    role: 'patient'  // Default role
   });
 
   const [message, setMessage] = useState('');
@@ -61,9 +62,16 @@ function Login() {
           setMessage(data.message); 
           if (data.token) {
             localStorage.setItem('token', data.token);
-            localStorage.setItem('username', data.username);  
+            localStorage.setItem('username', data.username);
+            localStorage.setItem('role', data.role);  // Store the role in localStorage
+
+            // Navigate based on role
+            if (data.role === 'patient') {
+              navigate("/manageAppointment");
+            } else if (data.role === 'doctor') {
+              navigate("/DoctorsAppointments");
+            }
           }
-          navigate("/manageAppointment");
         }
       })
       .catch((error) => {
@@ -101,6 +109,13 @@ function Login() {
             required
           />
           {errors.password && <p className="error-text">{errors.password}</p>}
+        </div>
+        <div className="form-group">
+          <label>Role:</label>
+          <select name="role" value={formData.role} onChange={handleChange}>
+            <option value="patient">Patient</option>
+            <option value="doctor">Doctor</option>
+          </select>
         </div>
         <button type="submit" className="login-button">Login</button>
       </form>

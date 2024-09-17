@@ -4,10 +4,12 @@ import './register.css';
 
 function Register() {
   const [formData, setFormData] = useState({
+    full_name: '',
     username: '',
     email: '',
     password: '',
-    role: 'patient'
+    role: 'patient',
+    specialization: '' // Add specialization field
   });
 
   const [message, setMessage] = useState('');
@@ -24,21 +26,23 @@ function Register() {
 
   const validate = () => {
     const newErrors = {};
-    
+
     if (!formData.username) {
       newErrors.username = 'Username is required';
     }
-
     if (!formData.email) {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Email format is invalid';
     }
-
     if (!formData.password) {
       newErrors.password = 'Password is required';
     } else if (formData.password.length < 6) {
       newErrors.password = 'Password must be at least 6 characters';
+    }
+
+    if (formData.role === 'doctor' && !formData.specialization) {
+      newErrors.specialization = 'Specialization is required for doctors';
     }
 
     return newErrors;
@@ -86,7 +90,17 @@ function Register() {
   return (
     <div className="register-container">
       <h2 className="register-title">User Registration</h2>
-        <form onSubmit={handleSubmit} noValidate className="register-form">
+      <form onSubmit={handleSubmit} noValidate className="register-form">
+        <div className="form-group">
+          <label>Full Name:</label>
+          <input
+            type="text"
+            name="full_name"
+            value={formData.full_name}
+            onChange={handleChange}
+            required
+          />
+        </div>
         <div className="form-group">
           <label>Username:</label>
           <input
@@ -127,14 +141,29 @@ function Register() {
             <option value="doctor">Doctor</option>
           </select>
         </div>
+
+        {/* Conditionally render the specialization field if role is doctor */}
+        {formData.role === 'doctor' && (
+          <div className="form-group">
+            <label>Specialization:</label>
+            <input
+              type="text"
+              name="specialization"
+              value={formData.specialization}
+              onChange={handleChange}
+              required
+            />
+            {errors.specialization && <p className="error-text">{errors.specialization}</p>}
+          </div>
+        )}
+
         <button type="submit" className="register-button">Register</button>
         <div>
-        <button onClick={handleLoginRedirect} className="login-redirect-button">Go to Login</button>
-      </div>
+          <button onClick={handleLoginRedirect} className="login-redirect-button">Go to Login</button>
+        </div>
       </form>
       {message && <p className="message-text">{message}</p>}
 
-      {/* New button to navigate to Landing Page */}
       <button onClick={handleBackToLanding} className="back-button">Back to Landing Page</button>
     </div>
   );

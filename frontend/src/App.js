@@ -5,8 +5,9 @@ import Register from './register';
 import Login from './login';
 import ManageAppointment from './manageAppointment';
 import AddAppointment from './AddAppointment';
-import ShowAppointment from './ShowAppointment';  // Import your ShowAppointment component
-import UpdateAppointment from './UpdateAppointment'; 
+import ShowAppointment from './ShowAppointment';
+import UpdateAppointment from './UpdateAppointment';
+import DoctorsAppointments from './DoctorsAppointments'; 
 
 function App() {
   return (
@@ -33,8 +34,12 @@ function App() {
         {/* Show Appointment */}
         <Route path="/ShowAppointment" element={<ShowAppointment />} />
 
-        {/* Show Appointment */}
+        {/* Update Appointment */}
         <Route path="/UpdateAppointment/:appointmentId" element={<UpdateAppointment />} />
+
+        {/* Doctors Appointment */}
+        <Route path="/DoctorsAppointments" element={<DoctorsAppointments />} />
+
 
       </Routes>
     </Router>

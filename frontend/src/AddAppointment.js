@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './AddAppointment.css';
 
@@ -6,17 +6,32 @@ export const AddAppointment = () => {
   const [date, setDate] = useState('');
   const [timeFrom, setTimeFrom] = useState('');
   const [timeTo, setTimeTo] = useState('');
-  const [specialization, setSpecialization] = useState('');
+  const [doctorId, setDoctorId] = useState('');
   const [comment, setComment] = useState('');
   const [message, setMessage] = useState('');
   const [isAccepted, setIsAccepted] = useState(null);
+  const [doctors, setDoctors] = useState([]);
   const navigate = useNavigate(); 
 
-  const specializations = ['Cardiologist', 'Dermatologist', 'Neurologist', 'Orthopedist'];
+  // Fetch the list of doctors when the component mounts
+  useEffect(() => {
+    fetch('/doctors', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      setDoctors(data.doctors);
+    })
+    .catch(error => {
+      console.error('Error fetching doctors:', error);
+    });
+  }, []);
 
   const handleSubmit = () => {
- 
-    if (!date || !timeFrom || !timeTo || !specialization) {
+    if (!date || !timeFrom || !timeTo || !doctorId) {
       setMessage('All fields are required');
       setIsAccepted(false);
       return;
@@ -26,7 +41,7 @@ export const AddAppointment = () => {
       date,
       time_from: timeFrom,
       time_to: timeTo,
-      specialization,
+      doctor_id: doctorId,
       comments: comment,
     };
 
@@ -38,26 +53,26 @@ export const AddAppointment = () => {
       },
       body: JSON.stringify(data),
     })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.error) {
-          setMessage(`Error: ${data.error}`);
-          setIsAccepted(false);
-        } else {
-          setMessage(data.message);
-          setIsAccepted(true);
-          setDate('');
-          setTimeFrom('');
-          setTimeTo('');
-          setSpecialization('');
-          setComment('');
-        }
-      })
-      .catch((error) => {
-        setMessage('An error occurred');
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.error) {
+        setMessage(`Error: ${data.error}`);
         setIsAccepted(false);
-        console.error(error);
-      });
+      } else {
+        setMessage(data.message);
+        setIsAccepted(true);
+        setDate('');
+        setTimeFrom('');
+        setTimeTo('');
+        setDoctorId('');
+        setComment('');
+      }
+    })
+    .catch((error) => {
+      setMessage('An error occurred');
+      setIsAccepted(false);
+      console.error(error);
+    });
   };
 
   const handleLogout = () => {
@@ -87,12 +102,12 @@ export const AddAppointment = () => {
           <input type="time" value={timeTo} onChange={(e) => setTimeTo(e.target.value)} />
         </div>
         <div className="form-group">
-          <label>Specialization</label>
-          <select value={specialization} onChange={(e) => setSpecialization(e.target.value)}>
-            <option value="">Select Specialization</option>
-            {specializations.map((spec, index) => (
-              <option key={index} value={spec}>
-                {spec}
+          <label>Doctor</label>
+          <select value={doctorId} onChange={(e) => setDoctorId(e.target.value)}>
+            <option value="">Select Doctor</option>
+            {doctors.map((doctor) => (
+              <option key={doctor.id} value={doctor.id}>
+                {doctor.full_name} ({doctor.specialization})
               </option>
             ))}
           </select>
