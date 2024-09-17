@@ -56,6 +56,7 @@ body {
     cursor: pointer;
     transition: background-color 0.3s ease;
     background-color: #008CBA;
+    margin-bottom: 10px;
 }
 
 .login-button:hover {
@@ -71,4 +72,21 @@ body {
     margin-top: 15px;
     font-size: 1em;
     color: #333;
+}
+
+.back-button {
+    width: 100%;
+    padding: 10px;
+    font-size: 1.1em;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    background-color: #ec2618;
+    margin-top: 0px;
+}
+
+.back-button:hover {
+    background-color: #d32f2f;
 }

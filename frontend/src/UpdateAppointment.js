@@ -83,6 +83,10 @@ export const UpdateAppointment = () => {
     navigate('/login');
   };
 
+  const handleBackToManage = () => {
+    navigate('/manageAppointment');
+  };
+
   return (
     <div className="appointment-container">
       <h2 className="appointment-title">Update Appointment</h2>
@@ -117,13 +121,15 @@ export const UpdateAppointment = () => {
         <button type="button" onClick={handleSubmit} className="appointment-button">Update Appointment</button>
       </form>
 
+      <button onClick={handleLogout} className="logout-button">Logout</button>
+      <button className="back-button" onClick={handleBackToManage}>Back to Manage Appointments</button>
+
       {message && (
         <p className={`message-text ${isAccepted ? 'success-text' : 'error-text'}`}>
           {message}
         </p>
       )}
 
-      <button onClick={handleLogout} className="logout-button">Logout</button>
     </div>
   );
 };

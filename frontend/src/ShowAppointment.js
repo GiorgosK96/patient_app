@@ -72,14 +72,14 @@ function ShowAppointment() {
     navigate('/login');
   };
 
+  const handleBackToManage = () => {
+    navigate('/manageAppointment');
+  };
+
   return (
     <div className="appointment-container">
       <h2 className="appointment-title">Show Appointments</h2>
-      {message && (
-        <p className={`message-text ${isSuccess ? 'success-text' : 'error-text'}`}>
-          {message}
-        </p>
-      )}
+
       <ul className="appointment-list">
         {appointments.map((appointment) => (
           <li key={appointment.id} className="appointment-item">
@@ -94,9 +94,15 @@ function ShowAppointment() {
         ))}
       </ul>
       <button className="logout-button" onClick={handleLogout}>Logout</button>
+      <button className="back-button" onClick={handleBackToManage}>Back to Manage Appointments</button>
+
+      {message && (
+        <p className={`message-text ${isSuccess ? 'success-text' : 'error-text'}`}>
+          {message}
+        </p>
+      )}
     </div>
   );
 }
 
 export default ShowAppointment;
-

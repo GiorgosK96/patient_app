@@ -18,6 +18,10 @@ function ManageAppointment() {
     navigate('/login');
   };
 
+  const handleBacktoLogin = () => {
+    navigate('/login');
+  };
+
   return (
     <div className="manage-container">
       <h2 className="manage-title">Manage Appointments</h2>
@@ -29,6 +33,9 @@ function ManageAppointment() {
       </button>
       <button className="manage-button logout-button" onClick={handleLogout}>
         Logout
+      </button>
+      <button className="manage-button back-button" onClick={handleBacktoLogin}>
+        Back to Login
       </button>
     </div>
   );

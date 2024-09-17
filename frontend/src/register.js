@@ -79,6 +79,10 @@ function Register() {
     navigate("/login");
   };
 
+  const handleBackToLanding = () => {
+    navigate("/");
+  };
+
   return (
     <div className="register-container">
       <h2 className="register-title">User Registration</h2>
@@ -129,6 +133,9 @@ function Register() {
       </div>
       </form>
       {message && <p className="message-text">{message}</p>}
+
+      {/* New button to navigate to Landing Page */}
+      <button onClick={handleBackToLanding} className="back-button">Back to Landing Page</button>
     </div>
   );
 }

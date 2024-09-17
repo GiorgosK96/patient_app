@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import './login.css'; // Import the CSS
 
-
 function Login() {
   const [formData, setFormData] = useState({
     email: '',
@@ -47,7 +46,6 @@ function Login() {
       return;
     }
 
-
     fetch('/login', {
       method: 'POST',
       headers: {
@@ -72,6 +70,10 @@ function Login() {
         console.error('Error:', error);
         setMessage('An error occurred.');
       });
+  };
+
+  const handleBackToLanding = () => {
+    navigate("/");
   };
 
   return (
@@ -102,7 +104,12 @@ function Login() {
         </div>
         <button type="submit" className="login-button">Login</button>
       </form>
+
       {message && <p className="message-text">{message}</p>}
+
+      <button onClick={handleBackToLanding} className="back-button">
+        Back to Home
+      </button>
     </div>
   );
 }
