@@ -6,15 +6,32 @@ export const UpdateAppointment = () => {
   const [date, setDate] = useState('');
   const [timeFrom, setTimeFrom] = useState('');
   const [timeTo, setTimeTo] = useState('');
-  const [specialization, setSpecialization] = useState('');
+  const [doctorId, setDoctorId] = useState('');
   const [comment, setComment] = useState('');
   const [message, setMessage] = useState('');
   const [isAccepted, setIsAccepted] = useState(null); // Initialize the `isAccepted` state
+  const [doctors, setDoctors] = useState([]);
   const { appointmentId } = useParams();
   const navigate = useNavigate(); // Initialize navigate for redirection
 
-  const specializations = ['Cardiologist', 'Dermatologist', 'Neurologist', 'Orthopedist'];
+  // Fetch doctors list on mount
+  useEffect(() => {
+    fetch('/doctors', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    })
+      .then(response => response.json())
+      .then(data => {
+        setDoctors(data.doctors);
+      })
+      .catch((error) => {
+        console.error('Failed to fetch doctors', error);
+      });
+  }, []);
 
+  // Fetch appointment details when the component mounts
   useEffect(() => {
     fetch(`/ShowAppointment/${appointmentId}`, {
       method: 'GET',
@@ -27,7 +44,7 @@ export const UpdateAppointment = () => {
         setDate(data.date);
         setTimeFrom(data.time_from);
         setTimeTo(data.time_to);
-        setSpecialization(data.specialization);
+        setDoctorId(data.doctor.id); // Use doctor ID instead of specialization
         setComment(data.comments);
       })
       .catch((error) => {
@@ -38,7 +55,7 @@ export const UpdateAppointment = () => {
   }, [appointmentId]);
 
   const handleSubmit = () => {
-    if (!date || !timeFrom || !timeTo || !specialization) {
+    if (!date || !timeFrom || !timeTo || !doctorId) {
       setMessage('All fields are required');
       setIsAccepted(false); // Set failure
       return;
@@ -48,7 +65,7 @@ export const UpdateAppointment = () => {
       date,
       time_from: timeFrom,
       time_to: timeTo,
-      specialization,
+      doctor_id: doctorId,  // Update doctor ID
       comments: comment,
     };
 
@@ -104,12 +121,12 @@ export const UpdateAppointment = () => {
           <input type="time" value={timeTo} onChange={(e) => setTimeTo(e.target.value)} />
         </div>
         <div className="form-group">
-          <label>Specialization</label>
-          <select value={specialization} onChange={(e) => setSpecialization(e.target.value)}>
-            <option value="">Select Specialization</option>
-            {specializations.map((spec, index) => (
-              <option key={index} value={spec}>
-                {spec}
+          <label>Doctor</label>
+          <select value={doctorId} onChange={(e) => setDoctorId(e.target.value)}>
+            <option value="">Select Doctor</option>
+            {doctors.map((doctor) => (
+              <option key={doctor.id} value={doctor.id}>
+                {doctor.full_name} ({doctor.specialization})
               </option>
             ))}
           </select>
@@ -129,7 +146,6 @@ export const UpdateAppointment = () => {
           {message}
         </p>
       )}
-
     </div>
   );
 };

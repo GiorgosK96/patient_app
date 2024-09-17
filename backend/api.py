@@ -162,19 +162,28 @@ def login():
 @jwt_required()
 def get_appointment(appointment_id):
     current_user_id = get_jwt_identity()
-    appointment = Appointment.query.filter_by(id=appointment_id, user_id=current_user_id).first()
+    # Find the appointment for the current user
+    appointment = Appointment.query.filter_by(id=appointment_id, patient_id=current_user_id).first()
 
     if not appointment:
         return jsonify({'error': 'Appointment not found'}), 404
+
+    # Fetch doctor details
+    doctor = Doctor.query.get(appointment.doctor_id)
 
     return jsonify({
         'id': appointment.id,
         'date': appointment.date,
         'time_from': appointment.time_from,
         'time_to': appointment.time_to,
-        'specialization': appointment.specialization,
+        'doctor': {
+            'id': doctor.id,
+            'full_name': doctor.full_name,
+            'specialization': doctor.specialization
+        },
         'comments': appointment.comments
     }), 200
+
 
 # Show all appointments for the logged-in patient
 @app.route("/ShowAppointment", methods=['GET'])
@@ -243,42 +252,25 @@ def add_appointment():
 
     return jsonify({'message': 'Appointment created successfully'}), 201
 
+
+# Update Appointment Route
 @app.route("/UpdateAppointment/<int:appointment_id>", methods=['PUT'])
 @jwt_required()
 def update_appointment(appointment_id):
     data = request.get_json()
-    user_id = get_jwt_identity()  # Get the logged-in user's ID
+    patient_id = get_jwt_identity()  # Get the logged-in user's ID
 
     # Fetch the appointment to be updated
-    appointment = Appointment.query.filter_by(id=appointment_id, user_id=user_id).first()
+    appointment = Appointment.query.filter_by(id=appointment_id, patient_id=patient_id).first()
 
     if not appointment:
         return jsonify({'error': 'Appointment not found'}), 404
 
     # Validate and update date and time if provided
-    date_str = data.get('date', appointment.date)
-    time_from_str = data.get('time_from', appointment.time_from)
-    time_to_str = data.get('time_to', appointment.time_to)
-
-    try:
-        # Check for the correct format of date and time
-        selected_time_from = datetime.strptime(f"{date_str} {time_from_str}", "%Y-%m-%d %H:%M")
-        selected_time_to = datetime.strptime(f"{date_str} {time_to_str}", "%Y-%m-%d %H:%M")
-        current_time = datetime.now()
-    except ValueError:
-        return jsonify({'error': 'Invalid date or time format'}), 400
-
-    if selected_time_from < current_time:
-        return jsonify({'error': 'Cannot update an appointment in the past'}), 400
-
-    if selected_time_to <= selected_time_from:
-        return jsonify({'error': 'End time must be after the start time'}), 400
-
-    # Update the fields
-    appointment.date = date_str
-    appointment.time_from = time_from_str
-    appointment.time_to = time_to_str
-    appointment.specialization = data.get('specialization', appointment.specialization)
+    appointment.date = data.get('date', appointment.date)
+    appointment.time_from = data.get('time_from', appointment.time_from)
+    appointment.time_to = data.get('time_to', appointment.time_to)
+    appointment.doctor_id = data.get('doctor_id', appointment.doctor_id)
     appointment.comments = data.get('comments', appointment.comments)
 
     try:
@@ -289,19 +281,23 @@ def update_appointment(appointment_id):
         return jsonify({'error': f'Failed to update appointment: {str(e)}'}), 500
 
 
+# Delete Route
 @app.route("/ShowAppointment/<int:appointment_id>", methods=['DELETE'])
 @jwt_required()
 def delete_appointments(appointment_id):
-    current_user_id = get_jwt_identity() 
+    current_patient_id = get_jwt_identity()  # Get the ID of the logged-in patient
 
-    appointment = Appointment.query.filter_by(id=appointment_id, user_id=current_user_id).first()
-    
+    # Fetch the appointment that belongs to the current patient
+    appointment = Appointment.query.filter_by(id=appointment_id, patient_id=current_patient_id).first()
+
     if appointment:
         db.session.delete(appointment)
         db.session.commit()
-        return jsonify(message='Appointment deleted successfuly'), 202
+        return jsonify({'message': 'Appointment deleted successfully'}), 202
     else:
-        return jsonify(message='Appointment not found'), 404
+        return jsonify({'error': 'Appointment not found or not authorized to delete this appointment'}), 404
+
+    
 
 # Show all doctors (to display in the appointment creation form for patients)
 @app.route("/doctors", methods=['GET'])
