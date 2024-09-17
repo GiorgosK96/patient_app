@@ -176,23 +176,28 @@ def get_appointment(appointment_id):
         'comments': appointment.comments
     }), 200
 
-# Show all appointments
+# Show all appointments for the logged-in patient
 @app.route("/ShowAppointment", methods=['GET'])
 @jwt_required()
 def show_appointment():
-    current_user_id = get_jwt_identity()
-    appointments = Appointment.query.filter_by(user_id=current_user_id).all()
+    current_patient_id = get_jwt_identity()  # Get the ID of the logged-in patient
+    appointments = Appointment.query.filter_by(patient_id=current_patient_id).all()
 
     appointments_list = [{
         'id': appointment.id,
         'date': appointment.date,
         'time_from': appointment.time_from,
         'time_to': appointment.time_to,
-        'specialization': appointment.specialization,
+        'doctor': {
+            'id': appointment.doctor.id,
+            'full_name': appointment.doctor.full_name,
+            'specialization': appointment.doctor.specialization
+        },
         'comments': appointment.comments
     } for appointment in appointments]
 
     return jsonify({'appointments': appointments_list}), 200
+
 
 # Add a new appointment
 @app.route("/AddAppointment", methods=['POST'])
