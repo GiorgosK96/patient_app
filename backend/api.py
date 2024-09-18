@@ -234,7 +234,6 @@ def add_appointment():
     if selected_time_to <= selected_time_from:
         return jsonify({'error': 'End time must be after the start time'}), 400
 
-    # Check for overlapping appointments for the doctor
     overlapping_appointment = Appointment.query.filter(
         Appointment.doctor_id == doctor_id,
         Appointment.date == date_str,
@@ -245,7 +244,6 @@ def add_appointment():
     if overlapping_appointment:
         return jsonify({'error': 'Doctor already has an appointment during this time'}), 400
 
-    # If no overlap, create the appointment
     new_appointment = Appointment(
         patient_id=patient_id,
         doctor_id=doctor_id,
@@ -315,12 +313,12 @@ def get_doctors():
 @app.route("/doctorAppointments", methods=['GET'])
 @jwt_required()
 def get_doctor_appointments():
-    doctor_id = get_jwt_identity()  # Get the ID of the logged-in doctor
+    doctor_id = get_jwt_identity()  
 
-    # Fetch appointments for the logged-in doctor
+    
     appointments = Appointment.query.filter_by(doctor_id=doctor_id).all()
 
-    # Format the response
+   
     appointments_list = [{
         'id': appointment.id,
         'patient': {
@@ -337,6 +335,41 @@ def get_doctor_appointments():
     return jsonify({'appointments': appointments_list}), 200
 
 
+@app.route('/account', methods=['GET'])
+@jwt_required()
+def account():
+    user_id = get_jwt_identity()  
+    role = request.args.get('role')  # Assuming you're sending role in the request
+    
+    if role == 'patient':
+        
+        patient = Patient.query.get(user_id)
+        if patient:
+            return jsonify({
+                'full_name': patient.full_name,
+                'username': patient.username,
+                'email': patient.email,
+                'role': 'patient'
+            }), 200
+        else:
+            return jsonify({'error': 'Patient not found'}), 404
+
+    elif role == 'doctor':
+        
+        doctor = Doctor.query.get(user_id)
+        if doctor:
+            return jsonify({
+                'full_name': doctor.full_name,
+                'username': doctor.username,
+                'email': doctor.email,
+                'specialization': doctor.specialization,
+                'role': 'doctor'
+            }), 200
+        else:
+            return jsonify({'error': 'Doctor not found'}), 404
+
+    else:
+        return jsonify({'error': 'Invalid role'}), 400
 
 if __name__ == '__main__':
     with app.app_context():

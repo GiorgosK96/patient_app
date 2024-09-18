@@ -36,6 +36,10 @@ function DoctorsAppointments() {
     navigate('/login');
   };
 
+  const handleAccount = () => {
+    navigate('/account');
+  };
+
   return (
     <div className="doctors-appointment-container">
       <h2 className="doctors-appointment-title">Doctor's Appointments</h2>
@@ -57,7 +61,8 @@ function DoctorsAppointments() {
       )}
       {message && <p className="doctors-error-text">{message}</p>}
       
-      {/* Logout button */}
+      {}
+      <button className="doctors-logout-button" onClick={handleAccount}>Account</button>
       <button className="doctors-logout-button" onClick={handleLogout}>Logout</button>
     </div>
   );

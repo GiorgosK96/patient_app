@@ -7,7 +7,8 @@ import ManageAppointment from './manageAppointment';
 import AddAppointment from './AddAppointment';
 import ShowAppointment from './ShowAppointment';
 import UpdateAppointment from './UpdateAppointment';
-import DoctorsAppointments from './DoctorsAppointments'; 
+import DoctorsAppointments from './DoctorsAppointments';
+import Account from './Account';
 
 function App() {
   return (
@@ -40,6 +41,8 @@ function App() {
         {/* Doctors Appointment */}
         <Route path="/DoctorsAppointments" element={<DoctorsAppointments />} />
 
+        {/*  */}
+        <Route path="/Account" element={<Account/>} />
 
       </Routes>
     </Router>

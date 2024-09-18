@@ -22,6 +22,10 @@ function ManageAppointment() {
     navigate('/login');
   };
 
+  const handleAccount = () => {
+    navigate('/account');
+  };
+
   return (
     <div className="manage-container">
       <h2 className="manage-title">Manage Appointments</h2>
@@ -30,6 +34,9 @@ function ManageAppointment() {
       </button>
       <button className="manage-button manage-show-appointment-button" onClick={handleShowAppointment}>
         Show Appointment
+      </button>
+      <button className="manage-button manage-account-button" onClick={handleAccount}>
+        Account
       </button>
       <button className="manage-button manage-logout-button" onClick={handleLogout}>
         Logout
