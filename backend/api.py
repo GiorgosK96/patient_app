@@ -57,16 +57,19 @@ class Doctor(db.Model):
 class Appointment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     patient_id = db.Column(db.Integer, db.ForeignKey('patient.id'), nullable=False)
-    doctor_id = db.Column(db.Integer, db.ForeignKey('doctor.id'), nullable=False)  # New field to store doctor ID
+    doctor_id = db.Column(db.Integer, db.ForeignKey('doctor.id'), nullable=False)
     date = db.Column(db.String(50), nullable=False)
     time_from = db.Column(db.String(10), nullable=False)
     time_to = db.Column(db.String(10), nullable=False)
     comments = db.Column(db.Text, nullable=True)
 
-    doctor = db.relationship('Doctor', backref='appointments')  # To easily access doctor details
+    # Relationships
+    doctor = db.relationship('Doctor', backref='appointments')  # Relationship to access doctor details
+    patient = db.relationship('Patient', backref='appointments')  # Relationship to access patient details
 
     def __repr__(self):
         return f"<Appointment with Doctor {self.doctor.full_name} on {self.date}>"
+
 
 
 # Register route
@@ -77,11 +80,11 @@ def register():
     username = data.get('username')
     email = data.get('email')
     password = data.get('password')
-    role = data.get('role')  # Either 'patient' or 'doctor'
+    role = data.get('role')  
     specialization = data.get('specialization')
 
     if role == 'patient':
-        # Register as a patient
+        
         if Patient.query.filter_by(email=email).first() or Patient.query.filter_by(username=username).first():
             return jsonify({'error': 'Email or Username already registered'}), 400
         
@@ -94,7 +97,7 @@ def register():
         return jsonify({'message': 'Patient registered successfully'}), 201
 
     elif role == 'doctor':
-        # Register as a doctor
+        
         if Doctor.query.filter_by(email=email).first() or Doctor.query.filter_by(username=username).first():
             return jsonify({'error': 'Email or Username already registered'}), 400
 
@@ -122,7 +125,7 @@ def login():
     role = data.get('role')
 
     if role == 'patient':
-        # Login as a patient
+        
         patient = Patient.query.filter_by(email=email).first()
 
         if patient and patient.check_password(password):
@@ -132,13 +135,13 @@ def login():
                 'token': token,
                 'username': patient.username,
                 'full_name': patient.full_name,
-                'role': 'patient'  # Return role
+                'role': 'patient'  
             }), 200
         else:
             return jsonify({'error': 'Invalid credentials'}), 401
 
     elif role == 'doctor':
-        # Login as a doctor
+        
         doctor = Doctor.query.filter_by(email=email).first()
 
         if doctor and doctor.check_password(password):
@@ -148,7 +151,7 @@ def login():
                 'token': token,
                 'username': doctor.username,
                 'specialization': doctor.specialization,
-                'role': 'doctor'  # Return role
+                'role': 'doctor'  
             }), 200
         else:
             return jsonify({'error': 'Invalid credentials'}), 401
@@ -185,11 +188,11 @@ def get_appointment(appointment_id):
     }), 200
 
 
-# Show all appointments for the logged-in patient
+# Show Appointment Route
 @app.route("/ShowAppointment", methods=['GET'])
 @jwt_required()
 def show_appointment():
-    current_patient_id = get_jwt_identity()  # Get the ID of the logged-in patient
+    current_patient_id = get_jwt_identity() 
     appointments = Appointment.query.filter_by(patient_id=current_patient_id).all()
 
     appointments_list = [{
@@ -208,7 +211,6 @@ def show_appointment():
     return jsonify({'appointments': appointments_list}), 200
 
 
-# Add a new appointment
 @app.route("/AddAppointment", methods=['POST'])
 @jwt_required()
 def add_appointment():
@@ -216,7 +218,7 @@ def add_appointment():
     patient_id = get_jwt_identity()
     doctor_id = data.get('doctor_id')
 
-    # Validate that doctor_id is provided and valid
+
     doctor = Doctor.query.get(doctor_id)
     if not doctor:
         return jsonify({'error': 'Invalid or missing doctor selection'}), 400
@@ -258,15 +260,14 @@ def add_appointment():
 @jwt_required()
 def update_appointment(appointment_id):
     data = request.get_json()
-    patient_id = get_jwt_identity()  # Get the logged-in user's ID
+    patient_id = get_jwt_identity()  
 
-    # Fetch the appointment to be updated
+    
     appointment = Appointment.query.filter_by(id=appointment_id, patient_id=patient_id).first()
 
     if not appointment:
         return jsonify({'error': 'Appointment not found'}), 404
 
-    # Validate and update date and time if provided
     appointment.date = data.get('date', appointment.date)
     appointment.time_from = data.get('time_from', appointment.time_from)
     appointment.time_to = data.get('time_to', appointment.time_to)
@@ -285,9 +286,9 @@ def update_appointment(appointment_id):
 @app.route("/ShowAppointment/<int:appointment_id>", methods=['DELETE'])
 @jwt_required()
 def delete_appointments(appointment_id):
-    current_patient_id = get_jwt_identity()  # Get the ID of the logged-in patient
+    current_patient_id = get_jwt_identity()  
 
-    # Fetch the appointment that belongs to the current patient
+   
     appointment = Appointment.query.filter_by(id=appointment_id, patient_id=current_patient_id).first()
 
     if appointment:
@@ -298,13 +299,38 @@ def delete_appointments(appointment_id):
         return jsonify({'error': 'Appointment not found or not authorized to delete this appointment'}), 404
 
     
-
-# Show all doctors (to display in the appointment creation form for patients)
 @app.route("/doctors", methods=['GET'])
 def get_doctors():
     doctors = Doctor.query.all()
     doctors_list = [{'id': doctor.id, 'full_name': doctor.full_name, 'specialization': doctor.specialization} for doctor in doctors]
     return jsonify({'doctors': doctors_list}), 200
+
+# Doctors Appointments Route
+@app.route("/doctorAppointments", methods=['GET'])
+@jwt_required()
+def get_doctor_appointments():
+    doctor_id = get_jwt_identity()  # Get the ID of the logged-in doctor
+
+    # Fetch appointments for the logged-in doctor
+    appointments = Appointment.query.filter_by(doctor_id=doctor_id).all()
+
+    # Format the response
+    appointments_list = [{
+        'id': appointment.id,
+        'patient': {
+            'id': appointment.patient.id,
+            'full_name': appointment.patient.full_name,
+            'email': appointment.patient.email,
+        },
+        'date': appointment.date,
+        'time_from': appointment.time_from,
+        'time_to': appointment.time_to,
+        'comments': appointment.comments
+    } for appointment in appointments]
+
+    return jsonify({'appointments': appointments_list}), 200
+
+
 
 if __name__ == '__main__':
     with app.app_context():

@@ -70,28 +70,26 @@ function ShowAppointment() {
   };
 
   return (
-    <div className="appointment-container">
-      <h2 className="appointment-title">Your Appointments</h2>
+    <div className="show-appointment-container">
+      <h2 className="show-appointment-title">Your Appointments</h2>
 
-      <ul className="appointment-list">
+      <ul className="show-appointment-list">
         {appointments.map((appointment) => (
-          <li key={appointment.id} className="appointment-item">
+          <li key={appointment.id} className="show-appointment-item">
             <p><strong>Date:</strong> {appointment.date}</p>
             <p><strong>From:</strong> {appointment.time_from}</p>
             <p><strong>To:</strong> {appointment.time_to}</p>
             <p><strong>Doctor:</strong> {appointment.doctor.full_name} ({appointment.doctor.specialization})</p>
             <p><strong>Comments:</strong> {appointment.comments}</p>
-            <button className="edit-button" onClick={() => handleEditAppointment(appointment.id)}>Edit</button>
-            <button className="delete-button" onClick={() => handleDeleteAppointment(appointment.id)}>Delete</button>
+            <button className="show-edit-button" onClick={() => handleEditAppointment(appointment.id)}>Edit</button>
+            <button className="show-delete-button" onClick={() => handleDeleteAppointment(appointment.id)}>Delete</button>
           </li>
         ))}
       </ul>
-      
-      <button className="logout-button" onClick={handleLogout}>Logout</button>
-      <button className="back-button" onClick={handleBackToManage}>Back to Manage Appointments</button>
-
+      <button className="show-back-to-manage-button" onClick={handleBackToManage}>Back to Manage Appointments</button>
+      <button className="show-logout-button" onClick={handleLogout}>Logout</button>
       {message && (
-        <p className="message-text">
+        <p className="show-message-text">
           {message}
         </p>
       )}

@@ -13,7 +13,6 @@ export const AddAppointment = () => {
   const [doctors, setDoctors] = useState([]);
   const navigate = useNavigate(); 
 
-  // Fetch the list of doctors when the component mounts
   useEffect(() => {
     fetch('/doctors', {
       method: 'GET',
@@ -86,22 +85,22 @@ export const AddAppointment = () => {
   };
 
   return (
-    <div className="appointment-container">
-      <h2 className="appointment-title">Create Appointment</h2>
-      <form className="appointment-form">
-        <div className="form-group">
+    <div className="add-appointment-container">
+      <h2 className="add-appointment-title">Add Appointment</h2>
+      <form className="add-appointment-form">
+        <div className="add-form-group">
           <label>Date</label>
           <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
         </div>
-        <div className="form-group">
+        <div className="add-form-group">
           <label>From</label>
           <input type="time" value={timeFrom} onChange={(e) => setTimeFrom(e.target.value)} />
         </div>
-        <div className="form-group">
+        <div className="add-form-group">
           <label>To</label>
           <input type="time" value={timeTo} onChange={(e) => setTimeTo(e.target.value)} />
         </div>
-        <div className="form-group">
+        <div className="add-form-group">
           <label>Doctor</label>
           <select value={doctorId} onChange={(e) => setDoctorId(e.target.value)}>
             <option value="">Select Doctor</option>
@@ -112,16 +111,16 @@ export const AddAppointment = () => {
             ))}
           </select>
         </div>
-        <div className="form-group">
+        <div className="add-form-group">
           <label>Comments</label>
           <textarea value={comment} onChange={(e) => setComment(e.target.value)} />
         </div>
-        <button type="button" onClick={handleSubmit} className="appointment-button">Add Appointment</button>
+        <button type="button" onClick={handleSubmit} className="add-appointment-button">Add Appointment</button>
       </form>
-      <button onClick={handleLogout} className="logout-button">Logout</button>
-      <button onClick={handleBackToManage} className="back-button">Back to Manage Appointments</button>
+      <button onClick={handleBackToManage} className="add-back-button">Back to Manage Appointments</button>
+      <button onClick={handleLogout} className="add-logout-button">Logout</button>
       {message && (
-        <p className={`message-text ${isAccepted ? 'success-text' : 'error-text'}`}>
+        <p className={`add-message-text ${isAccepted ? 'add-success-text' : 'add-error-text'}`}>
           {message}
         </p>
       )}

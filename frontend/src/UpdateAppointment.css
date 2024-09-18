@@ -1,4 +1,4 @@
-.appointment-container {
+.update-appointment-container {
     max-width: 500px;
     margin: 0 auto;
     padding: 20px;
@@ -8,32 +8,30 @@
     text-align: center;
   }
   
-  .appointment-title {
+  .update-appointment-title {
     margin-bottom: 20px;
     font-size: 2em;
     color: #333;
   }
   
-  .appointment-form {
+  .update-appointment-form {
     display: flex;
     flex-direction: column;
-    margin-bottom: 15px;
   }
   
-
-  .form-group {
+  .update-form-group {
     margin-bottom: 15px;
     text-align: left;
   }
   
-  .form-group label {
+  .update-form-group label {
     font-size: 1.1em;
     color: #333;
   }
   
-  .form-group input, 
-  .form-group select, 
-  .form-group textarea {
+  .update-form-group input, 
+  .update-form-group select, 
+  .update-form-group textarea {
     width: 100%;
     padding: 8px;
     margin-top: 5px;
@@ -43,7 +41,7 @@
     box-sizing: border-box;
   }
   
-  .appointment-button {
+  .update-appointment-button {
     width: 100%;
     padding: 10px;
     font-size: 1.1em;
@@ -53,14 +51,14 @@
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s ease;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
   }
   
-  .appointment-button:hover {
+  .update-appointment-button:hover {
     background-color: #45a049;
   }
   
-  .logout-button {
+  .update-logout-button, .update-back-button {
     width: 100%;
     padding: 10px;
     font-size: 1.1em;
@@ -70,39 +68,26 @@
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    margin-bottom: 10px;
   }
   
-  .logout-button:hover {
+  .update-logout-button:hover, .update-back-button:hover {
     background-color: #d32f2f;
   }
+
   
-  .message-text {
+  .update-message-text {
     font-size: 1em;
     margin-top: 15px;
   }
   
-  .success-text {
+  .update-success-text {
     color: green;
   }
   
-  .error-text {
+  .update-error-text {
     color: red;
   }
 
-  .back-button {
-    width: 100%;
-    padding: 10px;
-    font-size: 1.1em;
-    background-color: #ec2618;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    margin-top: 10px;
-  }
-  
-  .back-button:hover {
-    background-color: #d32f2f;
-  }
+
   

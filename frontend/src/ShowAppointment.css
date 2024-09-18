@@ -1,4 +1,4 @@
-.appointment-container {
+.show-appointment-container {
   max-width: 600px;
   margin: 0 auto;
   padding: 20px;
@@ -8,18 +8,18 @@
   text-align: center;
 }
 
-.appointment-title {
+.show-appointment-title {
   margin-bottom: 20px;
   font-size: 2em;
   color: #333;
 }
 
-.appointment-list {
+.show-appointment-list {
   list-style-type: none;
   padding: 0;
 }
 
-.appointment-item {
+.show-appointment-item {
   padding: 20px;
   background-color: #fff;
   border-radius: 8px;
@@ -28,15 +28,15 @@
   text-align: left;
 }
 
-.appointment-item p {
+.show-appointment-item p {
   margin: 5px 0;
 }
 
-.appointment-item button {
+.show-appointment-item button {
   margin-right: 10px;
 }
 
-.edit-button, .delete-button {
+.show-edit-button, .show-delete-button {
   padding: 10px 20px;
   font-size: 1.1em;
   color: white;
@@ -46,23 +46,23 @@
   transition: background-color 0.3s ease;
 }
 
-.edit-button {
+.show-edit-button {
   background-color: #4CAF50;
 }
 
-.edit-button:hover {
+.show-edit-button:hover {
   background-color: #45a049;
 }
 
-.delete-button {
+.show-delete-button {
   background-color: #f44336;
 }
 
-.delete-button:hover {
+.show-delete-button:hover {
   background-color: #e53935;
 }
 
-.logout-button {
+.show-logout-button, .show-back-to-manage-button {
   width: 100%;
   padding: 10px;
   font-size: 1.1em;
@@ -75,19 +75,19 @@
   margin-top: 5px;
 }
 
-.logout-button:hover {
+.show-logout-button:hover, .show-back-to-manage-button:hover {
   background-color: #d32f2f;
 }
 
-.message-text {
+.show-message-text {
   font-size: 1em;
   margin-top: 15px;
 }
 
-.success-text {
+.show-success-text {
   color: green;
 }
 
-.error-text {
+.show-error-text {
   color: red;
 }

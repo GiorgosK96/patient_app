@@ -19,18 +19,18 @@
   flex-direction: column;
 }
 
-.form-group {
+.register-form-group {
   margin-bottom: 15px;
   text-align: left;
 }
 
-.form-group label {
+.register-form-group label {
   font-size: 1.1em;
   color: #333;
 }
 
-.form-group input, 
-.form-group select {
+.register-form-group input, 
+.register-form-group select {
   width: 100%;
   padding: 8px;
   margin-top: 5px;
@@ -41,8 +41,8 @@
 }
 
 .register-button, 
-.login-redirect-button, 
-.back-button {
+.register-login-redirect-button, 
+.register-back-button {
   width: 100%;
   padding: 10px;
   font-size: 1.1em;
@@ -62,28 +62,28 @@
   background-color: #45a049;
 }
 
-.login-redirect-button {
+.register-login-redirect-button {
   background-color: #008CBA;
 }
 
-.login-redirect-button:hover {
+.register-login-redirect-button:hover {
   background-color: #007bb5;
 }
 
-.back-button {
+.register-back-button {
   background-color: #e74c3c;
 }
 
-.back-button:hover {
+.register-back-button:hover {
   background-color: #d32f2f;
 }
 
-.error-text {
+.register-error-text {
   color: red;
-  font-size: 0.9em;
+  font-size: 1.0em;
 }
 
-.message-text {
+.register-message-text {
   margin-top: 15px;
   font-size: 1em;
   color: #333;

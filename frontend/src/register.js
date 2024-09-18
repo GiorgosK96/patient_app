@@ -16,6 +16,23 @@ function Register() {
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
 
+  const specializations = [
+    'Cardiologist',
+    'Dermatologist',
+    'Neurologist',
+    'Orthopedist',
+    'Pediatrician',
+    'Ophthalmologist',
+    'Oncologist',
+    'Gastroenterologist',
+    'Endocrinologist',
+    'Psychiatrist',
+    'Pulmonologist',
+    'Urologist',
+    'Gynecologist',
+  ];
+  
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -27,6 +44,9 @@ function Register() {
   const validate = () => {
     const newErrors = {};
 
+    if (!formData.full_name) {
+      newErrors.full_name = 'Full name is required';
+    }
     if (!formData.username) {
       newErrors.username = 'Username is required';
     }
@@ -91,7 +111,7 @@ function Register() {
     <div className="register-container">
       <h2 className="register-title">User Registration</h2>
       <form onSubmit={handleSubmit} noValidate className="register-form">
-        <div className="form-group">
+        <div className="register-form-group">
           <label>Full Name:</label>
           <input
             type="text"
@@ -100,8 +120,9 @@ function Register() {
             onChange={handleChange}
             required
           />
+          {errors.full_name && <p className="register-error-text">{errors.full_name}</p>}
         </div>
-        <div className="form-group">
+        <div className="register-form-group">
           <label>Username:</label>
           <input
             type="text"
@@ -110,9 +131,9 @@ function Register() {
             onChange={handleChange}
             required
           />
-        {errors.username && <p className="error-text">{errors.username}</p>}
+        {errors.username && <p className="register-error-text">{errors.username}</p>}
         </div>
-        <div className="form-group">
+        <div className="register-form-group">
           <label>Email:</label>
           <input
             type="email"
@@ -121,9 +142,9 @@ function Register() {
             onChange={handleChange}
             required
           />
-          {errors.email && <p className="error-text">{errors.email}</p>}
+          {errors.email && <p className="register-error-text">{errors.email}</p>}
         </div>
-        <div className="form-group">
+        <div className="register-form-group">
           <label>Password:</label>
           <input
             type="password"
@@ -132,9 +153,9 @@ function Register() {
             onChange={handleChange}
             required
           />
-         {errors.password && <p className="error-text">{errors.password}</p>}
+         {errors.password && <p className="register-error-text">{errors.password}</p>}
         </div>
-        <div className="form-group">
+        <div className="register-form-group">
           <label>Role:</label>
           <select name="role" value={formData.role} onChange={handleChange}>
             <option value="patient">Patient</option>
@@ -142,29 +163,35 @@ function Register() {
           </select>
         </div>
 
-        {/* Conditionally render the specialization field if role is doctor */}
+        {/* Conditionally render the specialization dropdown if role is doctor */}
         {formData.role === 'doctor' && (
-          <div className="form-group">
+          <div className="register-form-group">
             <label>Specialization:</label>
-            <input
-              type="text"
+            <select 
               name="specialization"
               value={formData.specialization}
               onChange={handleChange}
               required
-            />
-            {errors.specialization && <p className="error-text">{errors.specialization}</p>}
+            >
+              <option value="">Select Specialization</option>
+              {specializations.map((spec, index) => (
+                <option key={index} value={spec}>
+                  {spec}
+                </option>
+              ))}
+            </select>
+            {errors.specialization && <p className="register-error-text">{errors.specialization}</p>}
           </div>
         )}
 
         <button type="submit" className="register-button">Register</button>
         <div>
-          <button onClick={handleLoginRedirect} className="login-redirect-button">Go to Login</button>
+          <button onClick={handleLoginRedirect} className="register-login-redirect-button">Go to Login</button>
         </div>
       </form>
-      {message && <p className="message-text">{message}</p>}
+      {message && <p className="register-message-text">{message}</p>}
 
-      <button onClick={handleBackToLanding} className="back-button">Back to Landing Page</button>
+      <button onClick={handleBackToLanding} className="register-back-button">Back to Landing Page</button>
     </div>
   );
 }

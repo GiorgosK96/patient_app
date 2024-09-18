@@ -8,7 +8,6 @@
   text-align: center;
 }
 
-
 .manage-title {
   margin-bottom: 40px;
   font-size: 2em;
@@ -27,34 +26,27 @@
   transition: background-color 0.3s ease;
 }
 
-.add-appointment-button {
+.manage-add-appointment-button {
   background-color: #4CAF50;
 }
 
-.add-appointment-button:hover {
+.manage-add-appointment-button:hover {
   background-color: #45a049;
 }
 
-.show-appointment-button {
+.manage-show-appointment-button {
   background-color: #008CBA;
 }
 
-.show-appointment-button:hover {
+.manage-show-appointment-button:hover {
   background-color: #007bb5;
 }
 
-.logout-button {
+.manage-logout-button, .manage-back-button {
   background-color: #ec2618;
 }
 
-.logout-button:hover {
+.manage-logout-button:hover, .manage-back-button:hover {
   background-color: #d32f2f;
 }
 
-.back-button {
-  background-color: #ec2618;
-}
-
-.back-button:hover {
-  background-color: #d32f2f;
-}

@@ -4,19 +4,19 @@ import './LandingPage.css';
 
 function LandingPage() {
   return (
-    <div className="page-container">
-      <h1 className="title">Patient Appointment Application</h1>
+    <div className="landing-page-container">
+      <h1 className="landing-page-title">Patient Appointment Application</h1>
 
-      <div className="auth-buttons">
-      <p className="register-text">If you are a new user you can register here!</p>
+      <div className="landing-page-auth-buttons">
+      <p className="landing-page-register-text">If you are a new user you can register here!</p>
         <Link to="/register">
-          <button className="register-button">Register</button>
+          <button className="landing-page-register-button">Register</button>
         </Link>
 
-        <p className="login-text">Already have an account?</p>
+        <p className="landing-page-login-text">Already have an account?</p>
 
         <Link to="/login">
-          <button className="login-button">Login</button>
+          <button className="landing-page-login-button">Login</button>
         </Link>
       </div>
     </div>

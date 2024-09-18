@@ -25,16 +25,16 @@ function ManageAppointment() {
   return (
     <div className="manage-container">
       <h2 className="manage-title">Manage Appointments</h2>
-      <button className="manage-button add-appointment-button" onClick={handleCreateAppointment}>
+      <button className="manage-button manage-add-appointment-button" onClick={handleCreateAppointment}>
         Add Appointment
       </button>
-      <button className="manage-button show-appointment-button" onClick={handleShowAppointment}>
+      <button className="manage-button manage-show-appointment-button" onClick={handleShowAppointment}>
         Show Appointment
       </button>
-      <button className="manage-button logout-button" onClick={handleLogout}>
+      <button className="manage-button manage-logout-button" onClick={handleLogout}>
         Logout
       </button>
-      <button className="manage-button back-button" onClick={handleBacktoLogin}>
+      <button className="manage-button manage-back-button" onClick={handleBacktoLogin}>
         Back to Login
       </button>
     </div>
