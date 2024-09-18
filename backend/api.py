@@ -217,12 +217,6 @@ def add_appointment():
     data = request.get_json()
     patient_id = get_jwt_identity()
     doctor_id = data.get('doctor_id')
-
-
-    doctor = Doctor.query.get(doctor_id)
-    if not doctor:
-        return jsonify({'error': 'Invalid or missing doctor selection'}), 400
-
     date_str = data.get('date')
     time_from_str = data.get('time_from')
     time_to_str = data.get('time_to')
@@ -240,12 +234,24 @@ def add_appointment():
     if selected_time_to <= selected_time_from:
         return jsonify({'error': 'End time must be after the start time'}), 400
 
+    # Check for overlapping appointments for the doctor
+    overlapping_appointment = Appointment.query.filter(
+        Appointment.doctor_id == doctor_id,
+        Appointment.date == date_str,
+        Appointment.time_from < time_to_str,  # New appointment starts before existing one ends
+        Appointment.time_to > time_from_str  # New appointment ends after existing one starts
+    ).first()
+
+    if overlapping_appointment:
+        return jsonify({'error': 'Doctor already has an appointment during this time'}), 400
+
+    # If no overlap, create the appointment
     new_appointment = Appointment(
         patient_id=patient_id,
         doctor_id=doctor_id,
-        date=data['date'],
-        time_from=data['time_from'],
-        time_to=data['time_to'],
+        date=date_str,
+        time_from=time_from_str,
+        time_to=time_to_str,
         comments=data.get('comments', '')
     )
 
