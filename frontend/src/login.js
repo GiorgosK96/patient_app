@@ -21,18 +21,16 @@ function Login() {
     });
   };
 
+  
   const validate = () => {
     const newErrors = {};
+
     if (!formData.email) {
       newErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email format is invalid';
     }
 
     if (!formData.password) {
       newErrors.password = 'Password is required';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
     }
 
     return newErrors;
@@ -65,7 +63,6 @@ function Login() {
             localStorage.setItem('username', data.username);
             localStorage.setItem('role', data.role);
 
-            
             if (data.role === 'patient') {
               navigate("/manageAppointment");
             } else if (data.role === 'doctor') {
@@ -119,12 +116,10 @@ function Login() {
         </div>
         <button type="submit" className="login-button">Login</button>
       </form>
-
-      {message && <p className="login-message-text">{message}</p>}
-
       <button onClick={handleBackToLanding} className="login-back-button">
-        Back to Home
+      Back to Home
       </button>
+      {message && <p className="login-message-text">{message}</p>}
     </div>
   );
 }

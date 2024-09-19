@@ -138,7 +138,7 @@ def login():
                 'role': 'patient'  
             }), 200
         else:
-            return jsonify({'error': 'Invalid credentials'}), 401
+            return jsonify({'error': 'The email or password you entered is incorrect!'}), 401
 
     elif role == 'doctor':
         

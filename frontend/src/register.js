@@ -9,7 +9,7 @@ function Register() {
     email: '',
     password: '',
     role: 'patient',
-    specialization: '' // Add specialization field
+    specialization: ''
   });
 
   const [message, setMessage] = useState('');
@@ -33,6 +33,14 @@ function Register() {
   ];
   
 
+  const validatePassword = (password) => {
+    return /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/.test(password);
+  };
+
+  const validateEmail = (email) => {
+    return /\S+@\S+\.\S+/.test(email);
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -44,21 +52,26 @@ function Register() {
   const validate = () => {
     const newErrors = {};
 
-    if (!formData.full_name) {
-      newErrors.full_name = 'Full name is required';
+    if (!formData.full_name || formData.full_name.length < 2) {
+      newErrors.full_name = 'Full name must be at least 2 characters';
     }
+
     if (!formData.username) {
       newErrors.username = 'Username is required';
     }
+
     if (!formData.email) {
       newErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+    } else if (!validateEmail(formData.email)) {
       newErrors.email = 'Email format is invalid';
     }
+
     if (!formData.password) {
       newErrors.password = 'Password is required';
     } else if (formData.password.length < 6) {
       newErrors.password = 'Password must be at least 6 characters';
+    } else if (!validatePassword(formData.password)) {
+      newErrors.password = 'Password must contain both letters and numbers';
     }
 
     if (formData.role === 'doctor' && !formData.specialization) {
@@ -189,9 +202,8 @@ function Register() {
           <button onClick={handleLoginRedirect} className="register-login-redirect-button">Go to Login</button>
         </div>
       </form>
-      {message && <p className="register-message-text">{message}</p>}
-
       <button onClick={handleBackToLanding} className="register-back-button">Back to Landing Page</button>
+      {message && <p className="register-message-text">{message}</p>}
     </div>
   );
 }
