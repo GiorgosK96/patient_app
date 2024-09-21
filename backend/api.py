@@ -54,6 +54,7 @@ class Doctor(db.Model):
         return f"<Doctor('{self.full_name}', '{self.username}', '{self.specialization}')>"
 
 
+# Appointment Model
 class Appointment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     patient_id = db.Column(db.Integer, db.ForeignKey('patient.id'), nullable=False)
@@ -64,8 +65,8 @@ class Appointment(db.Model):
     comments = db.Column(db.Text, nullable=True)
 
     # Relationships
-    doctor = db.relationship('Doctor', backref='appointments')  # Relationship to access doctor details
-    patient = db.relationship('Patient', backref='appointments')  # Relationship to access patient details
+    doctor = db.relationship('Doctor', backref='appointments')
+    patient = db.relationship('Patient', backref='appointments')  
 
     def __repr__(self):
         return f"<Appointment with Doctor {self.doctor.full_name} on {self.date}>"
@@ -192,8 +193,11 @@ def get_appointment(appointment_id):
 @app.route("/ShowAppointment", methods=['GET'])
 @jwt_required()
 def show_appointment():
-    current_patient_id = get_jwt_identity() 
-    appointments = Appointment.query.filter_by(patient_id=current_patient_id).all()
+    current_patient_id = get_jwt_identity()
+
+
+    appointments = Appointment.query.filter_by(patient_id=current_patient_id).order_by(Appointment.date.asc(), Appointment.time_from.asc()).all()
+
 
     appointments_list = [{
         'id': appointment.id,
@@ -211,6 +215,7 @@ def show_appointment():
     return jsonify({'appointments': appointments_list}), 200
 
 
+# Add Appointment Route
 @app.route("/AddAppointment", methods=['POST'])
 @jwt_required()
 def add_appointment():
@@ -309,16 +314,15 @@ def get_doctors():
     doctors_list = [{'id': doctor.id, 'full_name': doctor.full_name, 'specialization': doctor.specialization} for doctor in doctors]
     return jsonify({'doctors': doctors_list}), 200
 
+
 # Doctors Appointments Route
 @app.route("/doctorAppointments", methods=['GET'])
 @jwt_required()
 def get_doctor_appointments():
-    doctor_id = get_jwt_identity()  
+    doctor_id = get_jwt_identity()  # Get the logged-in doctor's ID
 
-    
-    appointments = Appointment.query.filter_by(doctor_id=doctor_id).all()
+    appointments = Appointment.query.filter_by(doctor_id=doctor_id).order_by(Appointment.date.asc(), Appointment.time_from.asc()).all()
 
-   
     appointments_list = [{
         'id': appointment.id,
         'patient': {
@@ -335,11 +339,12 @@ def get_doctor_appointments():
     return jsonify({'appointments': appointments_list}), 200
 
 
+
 @app.route('/account', methods=['GET'])
 @jwt_required()
 def account():
     user_id = get_jwt_identity()  
-    role = request.args.get('role')  # Assuming you're sending role in the request
+    role = request.args.get('role') 
     
     if role == 'patient':
         
