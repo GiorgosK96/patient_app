@@ -41,7 +41,7 @@ function App() {
         {/* Doctors Appointment */}
         <Route path="/DoctorsAppointments" element={<DoctorsAppointments />} />
 
-        {/*  */}
+        {/*Account*/}
         <Route path="/Account" element={<Account/>} />
 
       </Routes>

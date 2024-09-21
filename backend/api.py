@@ -9,7 +9,6 @@ import os
 
 load_dotenv()
 
-
 app = Flask(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SQLALCHEMY_DATABASE_URI')
@@ -76,7 +75,6 @@ class Appointment(db.Model):
 
     def __repr__(self):
         return f"<Appointment with Doctor {self.doctor.full_name} on {self.date}>"
-
 
 
 # Register route
@@ -200,9 +198,7 @@ def get_appointment(appointment_id):
 def show_appointment():
     current_patient_id = get_jwt_identity()
 
-
     appointments = Appointment.query.filter_by(patient_id=current_patient_id).order_by(Appointment.date.asc(), Appointment.time_from.asc()).all()
-
 
     appointments_list = [{
         'id': appointment.id,
@@ -247,8 +243,8 @@ def add_appointment():
     overlapping_appointment = Appointment.query.filter(
         Appointment.doctor_id == doctor_id,
         Appointment.date == date_str,
-        Appointment.time_from < time_to_str,  # New appointment starts before existing one ends
-        Appointment.time_to > time_from_str  # New appointment ends after existing one starts
+        Appointment.time_from < time_to_str,
+        Appointment.time_to > time_from_str
     ).first()
 
     if overlapping_appointment:
@@ -344,7 +340,7 @@ def get_doctor_appointments():
     return jsonify({'appointments': appointments_list}), 200
 
 
-
+# Account Route
 @app.route('/account', methods=['GET'])
 @jwt_required()
 def account():
@@ -380,6 +376,7 @@ def account():
 
     else:
         return jsonify({'error': 'Invalid role'}), 400
+
 
 if __name__ == '__main__':
     with app.app_context():

@@ -8,10 +8,9 @@ function Account() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch the logged-in user's role from local storage
+    
     const role = localStorage.getItem('role');
     
-    // Fetch account details
     fetch(`/account?role=${role}`, {
       method: 'GET',
       headers: {
@@ -42,9 +41,9 @@ function Account() {
   const handleBackToManage = () => {
     const role = localStorage.getItem('role');
     if (role === 'patient') {
-      navigate('/manageAppointment');  // Navigate to patient's manage appointment page
+      navigate('/manageAppointment'); 
     } else if (role === 'doctor') {
-      navigate('/DoctorsAppointments');  // Navigate to doctor's appointments page
+      navigate('/DoctorsAppointments');
     }
   };
 

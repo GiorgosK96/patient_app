@@ -52,7 +52,9 @@ function Register() {
   const validate = () => {
     const newErrors = {};
 
-    if (!formData.full_name || formData.full_name.length < 2) {
+    if (!formData.full_name) {
+      newErrors.full_name = 'Full name is required';
+    } else if (formData.full_name.length < 2) {
       newErrors.full_name = 'Full name must be at least 2 characters';
     }
 
