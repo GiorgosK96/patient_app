@@ -4,12 +4,18 @@ from flask_cors import CORS
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from datetime import datetime
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
 
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///appointments.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SQLALCHEMY_DATABASE_URI')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['JWT_SECRET_KEY'] = 'your_jwt_secret_key'
+app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
+
 
 db = SQLAlchemy(app)
 CORS(app)
@@ -166,13 +172,12 @@ def login():
 @jwt_required()
 def get_appointment(appointment_id):
     current_user_id = get_jwt_identity()
-    # Find the appointment for the current user
+    
     appointment = Appointment.query.filter_by(id=appointment_id, patient_id=current_user_id).first()
 
     if not appointment:
         return jsonify({'error': 'Appointment not found'}), 404
 
-    # Fetch doctor details
     doctor = Doctor.query.get(appointment.doctor_id)
 
     return jsonify({
