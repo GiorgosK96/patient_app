@@ -30,7 +30,6 @@ function Register() {
     'Pulmonologist',
     'Urologist',
     'Gynecologist',
-    'Rheumatologist'
   ];
   
 
