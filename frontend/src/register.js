@@ -178,7 +178,7 @@ function Register() {
           </select>
         </div>
 
-        {/* Conditionally render the specialization dropdown if role is doctor */}
+        {}
         {formData.role === 'doctor' && (
           <div className="register-form-group">
             <label>Specialization:</label>
