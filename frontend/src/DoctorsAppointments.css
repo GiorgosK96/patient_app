@@ -58,3 +58,20 @@
   margin-top: 15px;
 }
 
+.doctors-delete-button {
+  padding: 10px 20px;
+  font-size: 1.1em;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.doctors-delete-button {
+  background-color: #f44336;
+}
+
+.doctors-delete-button:hover {
+  background-color: #e53935;
+}

@@ -143,7 +143,7 @@ def login():
                 'role': 'patient'  
             }), 200
         else:
-            return jsonify({'error': 'The email or password you entered is incorrect!'}), 401
+            return jsonify({'error': 'The email, password or role you entered is incorrect!'}), 401
 
     elif role == 'doctor':
         
@@ -355,8 +355,6 @@ def update_appointment(appointment_id):
         return jsonify({'error': f'Failed to update appointment: {str(e)}'}), 500
 
 
-
-
 # Delete Route
 @app.route("/ShowAppointment/<int:appointment_id>", methods=['DELETE'])
 @jwt_required()
@@ -372,6 +370,7 @@ def delete_appointments(appointment_id):
         return jsonify({'message': 'Appointment deleted successfully'}), 202
     else:
         return jsonify({'error': 'Appointment not found or not authorized to delete this appointment'}), 404
+    
 
     
 @app.route("/doctors", methods=['GET'])
@@ -379,6 +378,24 @@ def get_doctors():
     doctors = Doctor.query.all()
     doctors_list = [{'id': doctor.id, 'full_name': doctor.full_name, 'specialization': doctor.specialization} for doctor in doctors]
     return jsonify({'doctors': doctors_list}), 200
+
+# Doctor Delete Appointment Route
+@app.route("/doctorAppointments/<int:appointment_id>", methods=['DELETE'])
+@jwt_required()
+def delete_doctor_appointments(appointment_id):
+    doctor_id = get_jwt_identity()
+
+    appointment = Appointment.query.filter_by(id=appointment_id, doctor_id=doctor_id).first()
+
+    if not appointment:
+        return jsonify({'error': 'Appointment not found or not authorized to delete this appointment'}), 404
+
+    try:
+        db.session.delete(appointment)
+        db.session.commit()
+        return jsonify({'message': 'Appointment deleted successfully'}), 202
+    except Exception as e:
+        return jsonify({'error': f'Failed to delete appointment: {str(e)}'}), 500
 
 
 # Doctors Appointments Route
