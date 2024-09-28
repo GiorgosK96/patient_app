@@ -26,8 +26,7 @@ function Register() {
     'Oncologist',
     'Gastroenterologist',
     'Endocrinologist',
-    'Psychiatrist',
-    'Pulmonologist',
+    'Psychiatrist',,
     'Urologist',
     'Gynecologist',
   ];

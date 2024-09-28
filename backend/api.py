@@ -234,21 +234,36 @@ def add_appointment():
     except ValueError:
         return jsonify({'error': 'Invalid date or time format'}), 400
 
+
     if selected_time_from < current_time:
         return jsonify({'error': 'Cannot create an appointment in the past'}), 400
+
 
     if selected_time_to <= selected_time_from:
         return jsonify({'error': 'End time must be after the start time'}), 400
 
-    overlapping_appointment = Appointment.query.filter(
+
+    overlapping_doctor_appointment = Appointment.query.filter(
         Appointment.doctor_id == doctor_id,
         Appointment.date == date_str,
         Appointment.time_from < time_to_str,
         Appointment.time_to > time_from_str
     ).first()
 
-    if overlapping_appointment:
+    if overlapping_doctor_appointment:
         return jsonify({'error': 'Doctor already has an appointment during this time'}), 400
+
+
+    overlapping_patient_appointment = Appointment.query.filter(
+        Appointment.patient_id == patient_id,
+        Appointment.date == date_str,
+        Appointment.time_from < time_to_str,
+        Appointment.time_to > time_from_str
+    ).first()
+
+    if overlapping_patient_appointment:
+        return jsonify({'error': 'You already have another appointment during this time'}), 400
+
 
     new_appointment = Appointment(
         patient_id=patient_id,
@@ -265,24 +280,72 @@ def add_appointment():
     return jsonify({'message': 'Appointment created successfully'}), 201
 
 
+
 # Update Appointment Route
 @app.route("/UpdateAppointment/<int:appointment_id>", methods=['PUT'])
 @jwt_required()
 def update_appointment(appointment_id):
     data = request.get_json()
-    patient_id = get_jwt_identity()  
+    patient_id = get_jwt_identity()
 
-    
+
     appointment = Appointment.query.filter_by(id=appointment_id, patient_id=patient_id).first()
 
     if not appointment:
         return jsonify({'error': 'Appointment not found'}), 404
 
-    appointment.date = data.get('date', appointment.date)
-    appointment.time_from = data.get('time_from', appointment.time_from)
-    appointment.time_to = data.get('time_to', appointment.time_to)
-    appointment.doctor_id = data.get('doctor_id', appointment.doctor_id)
-    appointment.comments = data.get('comments', appointment.comments)
+
+    new_date = data.get('date', appointment.date)
+    new_time_from = data.get('time_from', appointment.time_from)
+    new_time_to = data.get('time_to', appointment.time_to)
+    doctor_id = data.get('doctor_id', appointment.doctor_id)
+    comments = data.get('comments', appointment.comments)
+
+    try:
+        selected_time_from = datetime.strptime(f"{new_date} {new_time_from}", "%Y-%m-%d %H:%M")
+        selected_time_to = datetime.strptime(f"{new_date} {new_time_to}", "%Y-%m-%d %H:%M")
+        current_time = datetime.now()
+    except ValueError:
+        return jsonify({'error': 'Invalid date or time format'}), 400
+
+
+    if selected_time_from < current_time:
+        return jsonify({'error': 'Cannot update an appointment to a past time'}), 400
+
+
+    if selected_time_to <= selected_time_from:
+        return jsonify({'error': 'End time must be after the start time'}), 400
+
+
+    overlapping_doctor_appointment = Appointment.query.filter(
+        Appointment.doctor_id == doctor_id,
+        Appointment.date == new_date,
+        Appointment.time_from < new_time_to,
+        Appointment.time_to > new_time_from,
+        Appointment.id != appointment.id  
+    ).first()
+
+    if overlapping_doctor_appointment:
+        return jsonify({'error': 'Doctor already has an appointment during this time'}), 400
+
+
+    overlapping_patient_appointment = Appointment.query.filter(
+        Appointment.patient_id == patient_id,
+        Appointment.date == new_date,
+        Appointment.time_from < new_time_to,
+        Appointment.time_to > new_time_from,
+        Appointment.id != appointment.id  
+    ).first()
+
+    if overlapping_patient_appointment:
+        return jsonify({'error': 'You already have another appointment during this time'}), 400
+
+
+    appointment.date = new_date
+    appointment.time_from = new_time_from
+    appointment.time_to = new_time_to
+    appointment.doctor_id = doctor_id
+    appointment.comments = comments
 
     try:
         db.session.commit()
@@ -290,6 +353,8 @@ def update_appointment(appointment_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': f'Failed to update appointment: {str(e)}'}), 500
+
+
 
 
 # Delete Route
@@ -320,7 +385,7 @@ def get_doctors():
 @app.route("/doctorAppointments", methods=['GET'])
 @jwt_required()
 def get_doctor_appointments():
-    doctor_id = get_jwt_identity()  # Get the logged-in doctor's ID
+    doctor_id = get_jwt_identity()
 
     appointments = Appointment.query.filter_by(doctor_id=doctor_id).order_by(Appointment.date.asc(), Appointment.time_from.asc()).all()
 
